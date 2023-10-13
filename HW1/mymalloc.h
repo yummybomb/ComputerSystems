@@ -6,9 +6,9 @@
 
 static double memory[MEMLENGTH];
 
-typedef struct header{
-    int size;
-    struct header *next;
-} header_t;  
+typedef struct header {
+  int size;
+  struct header *next;
+} header_t;
 
 #endif
