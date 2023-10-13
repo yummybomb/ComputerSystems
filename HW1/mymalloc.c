@@ -1,3 +1,19 @@
-#define MEMLENGTH 512
+#include "mymalloc.h"
+#include <stdio.h>
 
-static double memory[MEMLENGTH];
+int main(){
+    printf("%d", sizeof(header_t));
+    return 0;
+}
+
+
+void *mymalloc(size_t _Size){
+
+}
+
+
+
+
+void *myfree(void *_Memory ){
+
+}
