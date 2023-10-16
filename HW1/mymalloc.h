@@ -1,12 +1,13 @@
 #ifndef MYMALLOC_H
 #define MYMALLOC_H
 
+#define MEMSIZE 512
 #define heap ((char *)memory)
-#define MEMLENGTH 512
 
-static double memory[MEMLENGTH];
+static double memory[MEMSIZE];
 
 typedef struct header {
+  bool isUsed;
   int size;
   struct header *next;
 } header_t;

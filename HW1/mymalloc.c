@@ -1,10 +1,14 @@
 #include "mymalloc.h"
 #include <stdio.h>
 
+
+char *byte200 = heap + 200;
+
 int main() {
-  printf("%d", sizeof(header_t));
-  return 0;
+  
 }
+
+
 
 void *mymalloc(size_t _Size) {}
 
