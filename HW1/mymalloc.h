@@ -7,7 +7,7 @@
 static double memory[MEMSIZE];
 
 typedef struct header {
-  bool isUsed;
+  char isUsed;
   int size;
   struct header *next;
 } header_t;
