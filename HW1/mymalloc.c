@@ -8,6 +8,7 @@
 
 static double memory[MEMSIZE];
 
+// Malloc functions
 int GetChunkSize(void *start);
 bool IsFree(void *start);
 void SetChunkSize(void *start, int size);
@@ -16,8 +17,10 @@ bool NextChunkIsUninitialized(void *start);
 void SetNextChunkSize(void *start, int size);
 void *GetNextChunk(void *start);
 
-void *mymalloc(size_t _Size) {
+// Free functions
+void MarkAsFree(void *start);
 
+void *mymalloc(size_t _Size) {
   if (_Size == 0) {
     printf("Error: cannot allocate 0 bytes\n");
     return NULL;
@@ -27,7 +30,7 @@ void *mymalloc(size_t _Size) {
 
   char *res = NULL;
   char *memStart = heap;
-
+  
   char *memEnd = memStart + MEMSIZE * sizeof(double);
 
   while (memStart < memEnd) {
@@ -40,7 +43,7 @@ void *mymalloc(size_t _Size) {
       res = memStart + 8;
       isFree = true;
       SetNextChunkSize(memStart, memEnd - (memStart + size + 8));
-
+      
       return res;
     }
 
@@ -48,18 +51,20 @@ void *mymalloc(size_t _Size) {
       SetChunkSize(memStart, size + 8);
       MarkAsAllocated(memStart);
       res = memStart + 8;
+
       if (NextChunkIsUninitialized(memStart)) {
         SetNextChunkSize(memStart, chunkSize - (size + 8));
       }
 
       return res;
     }
+
     if (isFree == false || chunkSize < size + 8) {
       memStart = GetNextChunk(memStart);
     }
-  }
-  printf("Error: not enough memory\n");
-  return NULL;
+  } 
+    printf("Error: not enough memory\n");
+    return NULL;
 }
 
 void *myfree(void *_Memory) {}
@@ -72,6 +77,8 @@ void SetChunkSize(void *start, int size) { *(int *)start = size; }
 
 void MarkAsAllocated(void *start) { *((char *)start + 4) = 1; }
 
+void MarkAsFree(void *start) { *((char *)start + 4) = 0; }
+
 bool NextChunkIsUninitialized(void *start) {
   return GetChunkSize((char *)start + GetChunkSize(start)) == 0;
 }
@@ -82,4 +89,4 @@ void SetNextChunkSize(void *start, int size) {
 
 void *GetNextChunk(void *start) { return (char *)start + GetChunkSize(start); }
 
-int main() { printf("end\n"); }
+int main() {}
