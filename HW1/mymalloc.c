@@ -67,26 +67,21 @@ void *mymalloc(size_t _Size) {
   return NULL;
 }
 
-void *myfree(void *_Memory) {
+void *myfree(void *_Memory) { MarkAsFree(_Memory); }
 
-  MarkAsFree(_Memory);
-  
+void coalesceNextChunk(void *ptr) {
 
-
-}
-
-void coalesceNextChunk(void *ptr){
-
-  //First get the size and if the ptr is free
+  // First get the size and if the ptr is free
   int size = GetChunkSize(ptr);
   bool freeBool = IsFree(ptr);
 
-  //If the pointer is free, we can check if the second chunk is free.
-  if(freeBool){
-    void* ptr2 = ptr + size;
+  // If the pointer is free, we can check if the second chunk is free.
+  if (freeBool) {
+    void *ptr2 = ptr + size;
 
-    //Since the second chunk is free, we can coalesce. We do this by adding the chunk size to size of ptr2, +8 because the header of ptr2 is 8 bytes.
-    if(IsFree(ptr2)){
+    // Since the second chunk is free, we can coalesce. We do this by adding the
+    // chunk size to size of ptr2, +8 because the header of ptr2 is 8 bytes.
+    if (IsFree(ptr2)) {
       int size2 = getChunkSize(ptr2);
       setChunkSize(ptr, size + size2 + 8);
     }
