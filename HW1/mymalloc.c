@@ -68,38 +68,36 @@ void *mymalloc(size_t _Size) {
   return NULL;
 }
 
-void *myfree(void *_Memory) { 
+void *myfree(void *_Memory) {
   char *memStart = heap;
   char *memEnd = memStart + MEMSIZE * sizeof(double);
 
   bool checker = false;
-  while(memStart < memEnd){
+  while (memStart < memEnd) {
     memStart += GetChunkSize(memStart);
-    if(memStart == _Memory){
+    if (memStart == _Memory) {
       checker = true;
 
       MarkAsFree(_Memory);
     }
   }
 
-  if(checker){
+  if (checker) {
 
     memStart = heap;
 
-    while(memStart < memEnd){
-      
-      char* ptr2 = memStart + GetChunkSize(memStart);
-      if(ptr2 < memEnd){
+    while (memStart < memEnd) {
+
+      char *ptr2 = memStart + GetChunkSize(memStart);
+      if (ptr2 < memEnd) {
         CoalesceNextChunk(memStart);
       }
     }
 
-  }
-  else{
+  } else {
     printf("Error: Pointer not in heap");
     return NULL;
   }
-  
 }
 
 void CoalesceNextChunk(void *ptr) {
@@ -141,5 +139,4 @@ void SetNextChunkSize(void *start, int size) {
 
 void *GetNextChunk(void *start) { return (char *)start + GetChunkSize(start); }
 
-int main() {
-}
+int main() {}
