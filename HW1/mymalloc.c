@@ -30,7 +30,7 @@ void *mymalloc(size_t _Size) {
 
   char *res = NULL;
   char *memStart = heap;
-  
+
   char *memEnd = memStart + MEMSIZE * sizeof(double);
 
   while (memStart < memEnd) {
@@ -43,7 +43,7 @@ void *mymalloc(size_t _Size) {
       res = memStart + 8;
       isFree = true;
       SetNextChunkSize(memStart, memEnd - (memStart + size + 8));
-      
+
       return res;
     }
 
@@ -62,9 +62,9 @@ void *mymalloc(size_t _Size) {
     if (isFree == false || chunkSize < size + 8) {
       memStart = GetNextChunk(memStart);
     }
-  } 
-    printf("Error: not enough memory\n");
-    return NULL;
+  }
+  printf("Error: not enough memory\n");
+  return NULL;
 }
 
 void *myfree(void *_Memory) {}
