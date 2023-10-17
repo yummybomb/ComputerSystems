@@ -74,7 +74,7 @@ void *myfree(void *_Memory) {
 
   bool checker = false;
   while (memStart < memEnd) {
-  
+
     if (memStart == _Memory) {
       checker = true;
 
@@ -140,6 +140,4 @@ void SetNextChunkSize(void *start, int size) {
 
 void *GetNextChunk(void *start) { return (char *)start + GetChunkSize(start); }
 
-int main() {
-  int* ptr = (int*)mymalloc(10 * sizeof(int));
-}
+int main() { int *ptr = (int *)mymalloc(10 * sizeof(int)); }
