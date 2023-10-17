@@ -93,6 +93,7 @@ void *myfree(void *_Memory) {
       if (ptr2 < memEnd) {
         CoalesceNextChunk(memStart);
       }
+      memStart += GetChunkSize(memStart);
     }
 
   } else {
