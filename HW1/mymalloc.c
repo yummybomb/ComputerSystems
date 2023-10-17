@@ -19,6 +19,7 @@ void *GetNextChunk(void *start);
 
 // Free functions
 void MarkAsFree(void *start);
+void CoalesceNextChunk(void *ptr);
 
 void *mymalloc(size_t _Size) {
   if (_Size == 0) {
@@ -67,9 +68,41 @@ void *mymalloc(size_t _Size) {
   return NULL;
 }
 
-void *myfree(void *_Memory) { MarkAsFree(_Memory); }
+void *myfree(void *_Memory) { 
+  char *memStart = heap;
+  char *memEnd = memStart + MEMSIZE * sizeof(double);
 
-void coalesceNextChunk(void *ptr) {
+  bool checker = false;
+  while(memStart < memEnd){
+    memStart += GetChunkSize(memStart);
+    if(memStart == _Memory){
+      checker = true;
+
+      MarkAsFree(_Memory);
+    }
+  }
+
+  if(checker){
+
+    memStart = heap;
+
+    while(memStart < memEnd){
+      
+      char* ptr2 = memStart + GetChunkSize(memStart);
+      if(ptr2 < memEnd){
+        CoalesceNextChunk(memStart);
+      }
+    }
+
+  }
+  else{
+    printf("Error: Pointer not in heap");
+    return NULL;
+  }
+  
+}
+
+void CoalesceNextChunk(void *ptr) {
 
   // First get the size and if the ptr is free
   int size = GetChunkSize(ptr);
@@ -82,8 +115,8 @@ void coalesceNextChunk(void *ptr) {
     // Since the second chunk is free, we can coalesce. We do this by adding the
     // chunk size to size of ptr2, +8 because the header of ptr2 is 8 bytes.
     if (IsFree(ptr2)) {
-      int size2 = getChunkSize(ptr2);
-      setChunkSize(ptr, size + size2 + 8);
+      int size2 = GetChunkSize(ptr2);
+      SetChunkSize(ptr, size + size2 + 8);
     }
   }
 }
@@ -108,4 +141,5 @@ void SetNextChunkSize(void *start, int size) {
 
 void *GetNextChunk(void *start) { return (char *)start + GetChunkSize(start); }
 
-int main() {}
+int main() {
+}
