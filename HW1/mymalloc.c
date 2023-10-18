@@ -66,7 +66,7 @@ void *mymalloc(size_t _Size, char *file, int line) {
   return NULL;
 }
 
-void *myfree(void *_Memory, char *file, int line) {
+void myfree(void *_Memory, char *file, int line) {
   char *memStart = heap;
 
   char *memEnd = memStart + MEMSIZE * sizeof(double);
@@ -76,7 +76,7 @@ void *myfree(void *_Memory, char *file, int line) {
     if (memStart == _Memory) {
       if (IsFree(_Memory)) {
         printf("Pointer is already free\n");
-        return NULL;
+        return;
       } else {
         MarkAsFree(_Memory);
         ptrValid = false;
@@ -87,7 +87,7 @@ void *myfree(void *_Memory, char *file, int line) {
 
   if (ptrValid) {
     printf("Pointer not in heap\n");
-    return NULL;
+    return;
   }
 
   memStart = heap;
@@ -159,5 +159,3 @@ bool IsFullyCleared(void *start) {
   if (GetChunkSize(start) == 8 * MEMSIZE && IsFree(start) == true)
     return true;
 }
-
-void main() { printf("hello"); }

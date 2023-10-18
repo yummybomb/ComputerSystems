@@ -1,15 +1,13 @@
-#include "mymalloc.h"
 #include <stdbool.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <time.h>
+#include "mymalloc.h"
 
 void test1() {
-  for (int i = 0; i < 120; i++) {
-    char *ptr = malloc(1); // Allocate 1 byte of memory
-    free(ptr);             // Release the memory
-  }
+  char *ptr = malloc(1); // Allocate 1 byte of memory
+  printf("%p", ptr);
   printf("MemClear?: %d\n", memCleared()); // Check if memory is cleared
+  printf("%p", heap);
 }
 
 int main() { test1(); }

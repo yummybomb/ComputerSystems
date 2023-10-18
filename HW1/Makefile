@@ -1,8 +1,12 @@
-all: mymalloc.o
-	-gcc -o memgrind memgrind.c mymalloc.o
+# Variables
+CC = gcc
+CFLAGS = -Wall -g
 
-mymalloc.o: mymalloc.c
-	-gcc -o mymalloc.o -c mymalloc.c
+# Targets
+all: memgrind
+
+memgrind: memgrind.c mymalloc.c mymalloc.h
+	$(CC) $(CFLAGS) -o memgrind memgrind.c mymalloc.c
 
 clean:
-	-rm *.o ./memgrind
+	rm memgrind

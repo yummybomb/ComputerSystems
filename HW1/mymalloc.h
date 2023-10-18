@@ -5,12 +5,12 @@
 #define free(x) myfree(x, __FILE__, __LINE__)
 
 #define MEMSIZE 512
-
+static double memory[MEMSIZE];
 #define heap ((char *)memory)
-
 #define ROUNDUP8(x) (((x) + 7) & (-8))
 
-static double memory[MEMSIZE];
+void *mymalloc(size_t _Size, char *file, int line);
+void myfree(void *_Memory, char *file, int line);
 
 bool memCleared();
 
