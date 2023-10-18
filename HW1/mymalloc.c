@@ -21,7 +21,7 @@ void *GetNextChunk(void *start);
 void MarkAsFree(void *start);
 void CoalesceNextChunk(void *ptr);
 
-void *mymalloc(size_t _Size) {
+void *mymalloc(size_t _Size, char *file, int line) {
   if (_Size == 0) {
     printf("Error: cannot allocate 0 bytes\n");
     return NULL;
@@ -45,7 +45,7 @@ void *mymalloc(size_t _Size) {
       isFree = true;
       SetNextChunkSize(memStart, memEnd - (memStart + size + 8));
 
-      return res;
+      return res-8;
     }
 
     if (isFree == true && chunkSize >= size + 8) {
@@ -57,7 +57,7 @@ void *mymalloc(size_t _Size) {
         SetNextChunkSize(memStart, chunkSize - (size + 8));
       }
 
-      return res;
+      return res-8;
     }
 
     if (isFree == false || chunkSize < size + 8) {
@@ -68,7 +68,7 @@ void *mymalloc(size_t _Size) {
   return NULL;
 }
 
-void *myfree(void *_Memory) {
+void *myfree(void *_Memory, char *file, int line) {
   char *memStart = heap;
   char *memEnd = memStart + MEMSIZE * sizeof(double);
 
@@ -97,7 +97,7 @@ void *myfree(void *_Memory) {
     }
 
   } else {
-    printf("Error: Pointer not in heap");
+    printf("Error: Pointer not in heap\n");
     return NULL;
   }
 }
@@ -141,4 +141,4 @@ void SetNextChunkSize(void *start, int size) {
 
 void *GetNextChunk(void *start) { return (char *)start + GetChunkSize(start); }
 
-int main() { int *ptr = (int *)mymalloc(10 * sizeof(int)); }
+int main() {}
