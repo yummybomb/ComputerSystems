@@ -70,35 +70,36 @@ void *mymalloc(size_t _Size, char *file, int line) {
 
 void *myfree(void *_Memory, char *file, int line) {
   char *memStart = heap;
+
   char *memEnd = memStart + MEMSIZE * sizeof(double);
 
-  bool checker = false;
-  while (memStart < memEnd) {
-
-    if (memStart == _Memory) {
-      checker = true;
-
-      MarkAsFree(_Memory);
+  bool ptrValid = true;
+  while(memStart < memEnd){
+    if(memStart == _Memory){
+      if(isFree(_Memory)){
+        printf("Pointer is already Free\n");
+        return;
+      }
+      else{
+        MarkAsFree(_Memory);
+        ptrValid = false;
+      }
     }
-    memStart += GetChunkSize(memStart);
+    memStart += getChunkSize(memStart);
   }
 
-  if (checker) {
+  if(ptrValid){
+    printf("Pointer not in heap\n");
+    return;
+  }
 
-    memStart = heap;
-
-    while (memStart < memEnd) {
-
-      char *ptr2 = memStart + GetChunkSize(memStart);
-      if (ptr2 < memEnd) {
-        CoalesceNextChunk(memStart);
-      }
-      memStart += GetChunkSize(memStart);
+  memStart = heap;
+  while(memStart < memEnd){
+    char *ptr2 = memStart + getChunkSize(memStart);
+    if(ptr2 < memEnd){
+      CoalesceNextChunk(memStart);
     }
-
-  } else {
-    printf("Error: Pointer not in heap\n");
-    return NULL;
+    memStart += getChunkSize(memStart);
   }
 }
 
