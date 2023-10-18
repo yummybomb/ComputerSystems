@@ -1,12 +1,6 @@
+#include "mymalloc.h"
 #include <stdbool.h>
 #include <stdio.h>
-
-#define MEMSIZE 512
-#define heap ((char *)memory)
-
-#define ROUNDUP8(x) (((x) + 7) & (-8))
-
-static double memory[MEMSIZE];
 
 // Malloc functions
 int GetChunkSize(void *start);
