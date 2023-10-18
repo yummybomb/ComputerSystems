@@ -78,13 +78,12 @@ void *myfree(void *_Memory, char *file, int line) {
   char *memEnd = memStart + MEMSIZE * sizeof(double);
 
   bool ptrValid = true;
-  while(memStart < memEnd){
-    if(memStart == _Memory){
-      if(isFree(_Memory)){
+  while (memStart < memEnd) {
+    if (memStart == _Memory) {
+      if (isFree(_Memory)) {
         printf("Pointer is already Free\n");
         return;
-      }
-      else{
+      } else {
         MarkAsFree(_Memory);
         ptrValid = false;
       }
@@ -92,15 +91,15 @@ void *myfree(void *_Memory, char *file, int line) {
     memStart += getChunkSize(memStart);
   }
 
-  if(ptrValid){
+  if (ptrValid) {
     printf("Pointer not in heap\n");
     return;
   }
 
   memStart = heap;
-  while(memStart < memEnd){
+  while (memStart < memEnd) {
     char *ptr2 = memStart + getChunkSize(memStart);
-    if(ptr2 < memEnd){
+    if (ptr2 < memEnd) {
       CoalesceNextChunk(memStart);
     }
     memStart += getChunkSize(memStart);
