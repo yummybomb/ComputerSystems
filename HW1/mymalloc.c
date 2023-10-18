@@ -1,6 +1,6 @@
-#include "mymalloc.h"
 #include <stdbool.h>
 #include <stdio.h>
+#include "mymalloc.h"
 
 // Malloc functions
 int GetChunkSize(void *start);
@@ -75,8 +75,8 @@ void *myfree(void *_Memory, char *file, int line) {
   while (memStart < memEnd) {
     if (memStart == _Memory) {
       if (IsFree(_Memory)) {
-        printf("Pointer is already Free\n");
-        return;
+        printf("Pointer is already free\n");
+        return NULL;
       } else {
         MarkAsFree(_Memory);
         ptrValid = false;
@@ -87,7 +87,7 @@ void *myfree(void *_Memory, char *file, int line) {
 
   if (ptrValid) {
     printf("Pointer not in heap\n");
-    return;
+    return NULL;
   }
 
   memStart = heap;
@@ -157,4 +157,8 @@ bool IsUninitialized(void *start) {
 bool IsFullyCleared(void *start) {
   if (GetChunkSize(start) == 8 * MEMSIZE && IsFree(start) == true)
     return true;
+}
+
+void main(){
+  printf("hello");
 }
