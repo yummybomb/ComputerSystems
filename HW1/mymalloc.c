@@ -1,6 +1,6 @@
+#include "mymalloc.h"
 #include <stdbool.h>
 #include <stdio.h>
-#include "mymalloc.h"
 
 // Malloc functions
 int GetChunkSize(void *start);
