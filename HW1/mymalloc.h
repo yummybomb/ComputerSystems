@@ -1,15 +1,7 @@
 #ifndef MYMALLOC_H
 #define MYMALLOC_H
 
-#define MEMSIZE 512
-#define heap ((char *)memory)
-
-static double memory[MEMSIZE];
-
-typedef struct header {
-  char isUsed;
-  int size;
-  struct header *next;
-} header_t;
+#define malloc(x) mymalloc(x, __FILE__, __LINE__)
+#define free(x) myfree(x, __FILE__, __LINE__)
 
 #endif
