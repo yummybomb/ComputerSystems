@@ -1,6 +1,6 @@
+#include "mymalloc.h"
 #include <stdbool.h>
 #include <stdio.h>
-#include "mymalloc.h"
 
 // Malloc functions
 int GetChunkSize(void *start);
@@ -159,6 +159,4 @@ bool IsFullyCleared(void *start) {
     return true;
 }
 
-void main(){
-  printf("hello");
-}
+void main() { printf("hello"); }
