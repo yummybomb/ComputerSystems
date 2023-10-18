@@ -19,6 +19,16 @@ void *GetNextChunk(void *start);
 void MarkAsFree(void *start);
 void CoalesceNextChunk(void *ptr);
 
+bool NextValidAndFree(char *ptr, char *memEnd){
+  char *ptr2 = ptr + GetChunkSize(ptr);
+  if (ptr2 >= memEnd) {
+    return false;
+  }
+  else{
+    return(IsFree(ptr2));
+  }
+}
+
 // Memclear function
 bool IsUninitialized(void *start);
 bool IsFullyCleared(void *start);
@@ -96,12 +106,20 @@ void myfree(void *_Memory, char *file, int line) {
 
   memStart = heap;
   while (memStart < memEnd) {
-    char *ptr2 = memStart + GetChunkSize(memStart);
-    if (ptr2 < memEnd) {
+
+    while(IsFree(memStart) && NextValidAndFree(memStart, memEnd)){
       CoalesceNextChunk(memStart);
     }
     memStart += GetChunkSize(memStart);
+
   }
+}
+
+void CoalesceNextChunk(void *ptr) {
+  int size = GetChunkSize(ptr);
+  void *ptr2 = ptr + size;
+  int size2 = GetChunkSize(ptr2);
+  SetChunkSize(ptr, size + size2);
 }
 
 bool memCleared() {
@@ -113,25 +131,6 @@ bool memCleared() {
 }
 
 void *GetHeapStart() { return heap; }
-
-void CoalesceNextChunk(void *ptr) {
-
-  // First get the size and if the ptr is free
-  int size = GetChunkSize(ptr);
-  bool freeBool = IsFree(ptr);
-
-  // If the pointer is free, we can check if the second chunk is free.
-  if (freeBool) {
-    void *ptr2 = ptr + size;
-
-    // Since the second chunk is free, we can coalesce. We do this by adding the
-    // chunk size to size of ptr2
-    if (IsFree(ptr2)) {
-      int size2 = GetChunkSize(ptr2);
-      SetChunkSize(ptr, size + size2);
-    }
-  }
-}
 
 int GetChunkSize(void *start) { return *(int *)start; }
 
