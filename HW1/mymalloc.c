@@ -107,13 +107,13 @@ void *myfree(void *_Memory, char *file, int line) {
 }
 
 bool memCleared() {
-    char *start = heap;
+  char *start = heap;
 
-    if (IsUninitialized(start) || IsFullyCleared(start)) {
-        return true;
-    }
+  if (IsUninitialized(start) || IsFullyCleared(start)) {
+    return true;
+  }
 
-    return false;
+  return false;
 }
 
 void CoalesceNextChunk(void *ptr) {
@@ -156,9 +156,11 @@ void SetNextChunkSize(void *start, int size) {
 void *GetNextChunk(void *start) { return (char *)start + GetChunkSize(start); }
 
 bool IsUninitialized(void *start) {
-  if (GetChunkSize(start) == 0 && IsFree(start) == true) return true;
+  if (GetChunkSize(start) == 0 && IsFree(start) == true)
+    return true;
 }
 
-bool IsFullyCleared(void *start){
-  if (GetChunkSize(start) == 8 * MEMSIZE && IsFree(start) == true) return true;
+bool IsFullyCleared(void *start) {
+  if (GetChunkSize(start) == 8 * MEMSIZE && IsFree(start) == true)
+    return true;
 }
