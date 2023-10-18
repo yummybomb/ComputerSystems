@@ -165,6 +165,4 @@ bool IsFullyCleared(void *start) {
     return true;
 }
 
-void main(){
-  printf("Funny");
-}
+void main() { printf("Funny"); }
