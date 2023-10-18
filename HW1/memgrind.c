@@ -1,8 +1,8 @@
-#include "mymalloc.h"
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <time.h>
+#include "mymalloc.h"
 
 void test1() {
   for (int i = 0; i < 120; i++) {

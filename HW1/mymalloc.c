@@ -1,6 +1,6 @@
-#include "mymalloc.h"
 #include <stdbool.h>
 #include <stdio.h>
+#include "mymalloc.h"
 
 // Malloc functions
 int GetChunkSize(void *start);
@@ -101,6 +101,7 @@ void *myfree(void *_Memory, char *file, int line) {
 }
 
 bool memCleared() {
+  
   char *start = heap;
 
   if (IsUninitialized(start) || IsFullyCleared(start)) {
