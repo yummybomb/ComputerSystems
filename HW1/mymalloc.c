@@ -21,6 +21,10 @@ void *GetNextChunk(void *start);
 void MarkAsFree(void *start);
 void CoalesceNextChunk(void *ptr);
 
+// Memclear function
+bool IsUninitialized(void *start);
+bool IsFullyCleared(void *start);
+
 void *mymalloc(size_t _Size, char *file, int line) {
   if (_Size == 0) {
     printf("Error: cannot allocate 0 bytes\n");
@@ -41,23 +45,23 @@ void *mymalloc(size_t _Size, char *file, int line) {
     if (chunkSize == 0 && isFree == true) {
       SetChunkSize(memStart, size + 8);
       MarkAsAllocated(memStart);
-      res = memStart + 8;
+      res = memStart;
       isFree = true;
       SetNextChunkSize(memStart, memEnd - (memStart + size + 8));
 
-      return res - 8;
+      return res;
     }
 
     if (isFree == true && chunkSize >= size + 8) {
       SetChunkSize(memStart, size + 8);
       MarkAsAllocated(memStart);
-      res = memStart + 8;
+      res = memStart;
 
       if (NextChunkIsUninitialized(memStart)) {
         SetNextChunkSize(memStart, chunkSize - (size + 8));
       }
 
-      return res - 8;
+      return res;
     }
 
     if (isFree == false || chunkSize < size + 8) {
@@ -102,6 +106,16 @@ void *myfree(void *_Memory, char *file, int line) {
   }
 }
 
+bool memCleared() {
+    char *start = heap;
+
+    if (IsUninitialized(start) || IsFullyCleared(start)) {
+        return true;
+    }
+
+    return false;
+}
+
 void CoalesceNextChunk(void *ptr) {
 
   // First get the size and if the ptr is free
@@ -141,4 +155,10 @@ void SetNextChunkSize(void *start, int size) {
 
 void *GetNextChunk(void *start) { return (char *)start + GetChunkSize(start); }
 
-int main() {}
+bool IsUninitialized(void *start) {
+  if (GetChunkSize(start) == 0 && IsFree(start) == true) return true;
+}
+
+bool IsFullyCleared(void *start){
+  if (GetChunkSize(start) == 8 * MEMSIZE && IsFree(start) == true) return true;
+}
