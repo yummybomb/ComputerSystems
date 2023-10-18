@@ -45,7 +45,7 @@ void *mymalloc(size_t _Size, char *file, int line) {
       isFree = true;
       SetNextChunkSize(memStart, memEnd - (memStart + size + 8));
 
-      return res-8;
+      return res - 8;
     }
 
     if (isFree == true && chunkSize >= size + 8) {
@@ -57,7 +57,7 @@ void *mymalloc(size_t _Size, char *file, int line) {
         SetNextChunkSize(memStart, chunkSize - (size + 8));
       }
 
-      return res-8;
+      return res - 8;
     }
 
     if (isFree == false || chunkSize < size + 8) {
