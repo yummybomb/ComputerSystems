@@ -112,9 +112,7 @@ bool memCleared() {
   return false;
 }
 
-void *GetHeapStart(){
-  return heap;
-}
+void *GetHeapStart() { return heap; }
 
 void CoalesceNextChunk(void *ptr) {
 
