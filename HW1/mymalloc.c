@@ -43,23 +43,23 @@ void *mymalloc(size_t _Size, char *file, int line) {
     if (chunkSize == 0 && isFree == true) {
       SetChunkSize(memStart, size + 8);
       MarkAsAllocated(memStart);
-      res = memStart;
+      res = memStart + 8;
       isFree = true;
       SetNextChunkSize(memStart, memEnd - (memStart + size + 8));
 
-      return res;
+      return res - 8;
     }
 
     if (isFree == true && chunkSize >= size + 8) {
       SetChunkSize(memStart, size + 8);
       MarkAsAllocated(memStart);
-      res = memStart;
+      res = memStart + 8;
 
       if (NextChunkIsUninitialized(memStart)) {
         SetNextChunkSize(memStart, chunkSize - (size + 8));
       }
 
-      return res;
+      return res - 8;
     }
 
     if (isFree == false || chunkSize < size + 8) {
@@ -105,13 +105,10 @@ void myfree(void *_Memory, char *file, int line) {
 }
 
 bool memCleared() {
-
-  char *start = heap;
-
+  void *start = heap;
   if (IsUninitialized(start) || IsFullyCleared(start)) {
     return true;
   }
-
   return false;
 }
 
@@ -130,10 +127,10 @@ void CoalesceNextChunk(void *ptr) {
     void *ptr2 = ptr + size;
 
     // Since the second chunk is free, we can coalesce. We do this by adding the
-    // chunk size to size of ptr2, +8 because the header of ptr2 is 8 bytes.
+    // chunk size to size of ptr2
     if (IsFree(ptr2)) {
       int size2 = GetChunkSize(ptr2);
-      SetChunkSize(ptr, size + size2 + 8);
+      SetChunkSize(ptr, size + size2);
     }
   }
 }
@@ -161,9 +158,11 @@ void *GetNextChunk(void *start) { return (char *)start + GetChunkSize(start); }
 bool IsUninitialized(void *start) {
   if (GetChunkSize(start) == 0 && IsFree(start) == true)
     return true;
+  return false;
 }
 
 bool IsFullyCleared(void *start) {
   if (GetChunkSize(start) == 8 * MEMSIZE && IsFree(start) == true)
     return true;
+  return false;
 }
