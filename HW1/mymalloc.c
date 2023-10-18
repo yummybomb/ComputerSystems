@@ -68,46 +68,46 @@ void *mymalloc(size_t _Size, char *file, int line) {
 
 void *myfree(void *_Memory, char *file, int line) {
   char *memStart = heap;
+
   char *memEnd = memStart + MEMSIZE * sizeof(double);
 
-  bool checker = false;
+  bool ptrValid = true;
   while (memStart < memEnd) {
-
     if (memStart == _Memory) {
-      checker = true;
-
-      MarkAsFree(_Memory);
+      if (IsFree(_Memory)) {
+        printf("Pointer is already Free\n");
+        return;
+      } else {
+        MarkAsFree(_Memory);
+        ptrValid = false;
+      }
     }
     memStart += GetChunkSize(memStart);
   }
 
-  if (checker) {
+  if (ptrValid) {
+    printf("Pointer not in heap\n");
+    return;
+  }
 
-    memStart = heap;
-
-    while (memStart < memEnd) {
-
-      char *ptr2 = memStart + GetChunkSize(memStart);
-      if (ptr2 < memEnd) {
-        CoalesceNextChunk(memStart);
-      }
-      memStart += GetChunkSize(memStart);
+  memStart = heap;
+  while (memStart < memEnd) {
+    char *ptr2 = memStart + GetChunkSize(memStart);
+    if (ptr2 < memEnd) {
+      CoalesceNextChunk(memStart);
     }
-
-  } else {
-    printf("Error: Pointer not in heap\n");
-    return NULL;
+    memStart += GetChunkSize(memStart);
   }
 }
 
 bool memCleared() {
-    char *start = heap;
+  char *start = heap;
 
-    if (IsUninitialized(start) || IsFullyCleared(start)) {
-        return true;
-    }
+  if (IsUninitialized(start) || IsFullyCleared(start)) {
+    return true;
+  }
 
-    return false;
+  return false;
 }
 
 void CoalesceNextChunk(void *ptr) {
@@ -150,9 +150,13 @@ void SetNextChunkSize(void *start, int size) {
 void *GetNextChunk(void *start) { return (char *)start + GetChunkSize(start); }
 
 bool IsUninitialized(void *start) {
-  if (GetChunkSize(start) == 0 && IsFree(start) == true) return true;
+  if (GetChunkSize(start) == 0 && IsFree(start) == true)
+    return true;
 }
 
-bool IsFullyCleared(void *start){
-  if (GetChunkSize(start) == 8 * MEMSIZE && IsFree(start) == true) return true;
+bool IsFullyCleared(void *start) {
+  if (GetChunkSize(start) == 8 * MEMSIZE && IsFree(start) == true)
+    return true;
 }
+
+void main() { printf("Funny"); }
