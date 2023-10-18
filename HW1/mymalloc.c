@@ -2,6 +2,10 @@
 #include <stdio.h>
 #include "mymalloc.h"
 
+#define MEMSIZE 512
+static double memory[MEMSIZE];
+#define heap ((char *)memory)
+
 // Malloc functions
 int GetChunkSize(void *start);
 bool IsFree(void *start);
@@ -109,6 +113,10 @@ bool memCleared() {
   }
 
   return false;
+}
+
+void *GetHeapStart(){
+  return heap;
 }
 
 void CoalesceNextChunk(void *ptr) {
