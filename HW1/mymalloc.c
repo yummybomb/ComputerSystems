@@ -164,7 +164,3 @@ bool IsFullyCleared(void *start) {
   if (GetChunkSize(start) == 8 * MEMSIZE && IsFree(start) == true)
     return true;
 }
-
-void main(){
-  printf("Funny");
-}
