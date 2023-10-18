@@ -19,13 +19,12 @@ void *GetNextChunk(void *start);
 void MarkAsFree(void *start);
 void CoalesceNextChunk(void *ptr);
 
-bool NextValidAndFree(char *ptr, char *memEnd){
+bool NextValidAndFree(char *ptr, char *memEnd) {
   char *ptr2 = ptr + GetChunkSize(ptr);
   if (ptr2 >= memEnd) {
     return false;
-  }
-  else{
-    return(IsFree(ptr2));
+  } else {
+    return (IsFree(ptr2));
   }
 }
 
@@ -107,11 +106,10 @@ void myfree(void *_Memory, char *file, int line) {
   memStart = heap;
   while (memStart < memEnd) {
 
-    while(IsFree(memStart) && NextValidAndFree(memStart, memEnd)){
+    while (IsFree(memStart) && NextValidAndFree(memStart, memEnd)) {
       CoalesceNextChunk(memStart);
     }
     memStart += GetChunkSize(memStart);
-
   }
 }
 
