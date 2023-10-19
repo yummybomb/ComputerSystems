@@ -2,3 +2,4 @@
 BasedOnStyle: LLVM
 SortIncludes: false
 IndentWidth: 3
+TabWidth: 3
