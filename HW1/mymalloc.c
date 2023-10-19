@@ -91,7 +91,7 @@ void myfree(void *_Memory, char *file, int line) {
             ptrValid = false;
          }
       }
-      memStart += GetChunkSize(memStart);
+      memStart = GetNextChunk(memStart);
    }
 
    if (ptrValid) {
@@ -104,7 +104,7 @@ void myfree(void *_Memory, char *file, int line) {
       while (IsFree(memStart) && NextValidAndFree(memStart, memEnd)) {
          CoalesceNextChunk(memStart);
       }
-      memStart += GetChunkSize(memStart);
+      memStart = GetNextChunk(memStart);
    }
 }
 
