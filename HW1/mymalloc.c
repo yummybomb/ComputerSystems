@@ -20,7 +20,7 @@ void *GetNextChunk(void *start);
 // Free functions
 void MarkAsFree(void *start);
 void CoalesceNextChunk(void *ptr);
-bool NextValidAndFree(char *ptr, char*memEnd);
+bool NextValidAndFree(char *ptr, char *memEnd);
 
 // Memclear function
 bool IsUninitialized(void *start);
