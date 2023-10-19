@@ -1,5 +1,5 @@
 ---
-BasedOnStyle: LLVM
+BasedOnStyle: Google
 SortIncludes: false
 IndentWidth: 3
 TabWidth: 3
