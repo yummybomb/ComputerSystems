@@ -31,4 +31,4 @@ void test2() {
   printf("MemClear?: %d\n\n", memCleared()); // Check if memory is cleared
 }
 
-int main() {}
+int main() {test1(); test2();}

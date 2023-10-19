@@ -2,10 +2,12 @@
 #include <stdio.h>
 #include "mymalloc.h"
 
+// Define heap, total size, and start ptr
 #define MEMSIZE 512
 static double memory[MEMSIZE];
 #define heap ((char *)memory)
 
+// FORWARD DECLARATIONS
 // Malloc functions
 int GetChunkSize(void *start);
 bool IsFree(void *start);
@@ -18,33 +20,26 @@ void *GetNextChunk(void *start);
 // Free functions
 void MarkAsFree(void *start);
 void CoalesceNextChunk(void *ptr);
-
-bool NextValidAndFree(char *ptr, char *memEnd) {
-  char *ptr2 = ptr + GetChunkSize(ptr);
-  if (ptr2 >= memEnd) {
-    return false;
-  } else {
-    return (IsFree(ptr2));
-  }
-}
+bool NextValidAndFree(char *ptr, char*memEnd);
 
 // Memclear function
 bool IsUninitialized(void *start);
 bool IsFullyCleared(void *start);
 
+// BEGIN mymalloc
 void *mymalloc(size_t _Size, char *file, int line) {
   if (_Size == 0) {
     printf("Error: cannot allocate 0 bytes\n");
     return NULL;
   }
 
+  // Define variables
   int size = ROUNDUP8(_Size);
-
   char *res = NULL;
   char *memStart = heap;
-
   char *memEnd = memStart + MEMSIZE * sizeof(double);
 
+  // Begin iterating over heap headers
   while (memStart < memEnd) {
     int chunkSize = GetChunkSize(memStart);
     bool isFree = IsFree(memStart);
@@ -52,23 +47,23 @@ void *mymalloc(size_t _Size, char *file, int line) {
     if (chunkSize == 0 && isFree == true) {
       SetChunkSize(memStart, size + 8);
       MarkAsAllocated(memStart);
-      res = memStart + 8;
+      res = memStart;
       isFree = true;
       SetNextChunkSize(memStart, memEnd - (memStart + size + 8));
 
-      return res - 8;
+      return res;
     }
 
     if (isFree == true && chunkSize >= size + 8) {
       SetChunkSize(memStart, size + 8);
       MarkAsAllocated(memStart);
-      res = memStart + 8;
+      res = memStart;
 
       if (NextChunkIsUninitialized(memStart)) {
         SetNextChunkSize(memStart, chunkSize - (size + 8));
       }
 
-      return res - 8;
+      return res;
     }
 
     if (isFree == false || chunkSize < size + 8) {
@@ -79,6 +74,7 @@ void *mymalloc(size_t _Size, char *file, int line) {
   return NULL;
 }
 
+// BEGIN myfree
 void myfree(void *_Memory, char *file, int line) {
   char *memStart = heap;
 
@@ -110,6 +106,16 @@ void myfree(void *_Memory, char *file, int line) {
       CoalesceNextChunk(memStart);
     }
     memStart += GetChunkSize(memStart);
+  }
+}
+
+// START OF HELPER FUNCTIONS
+bool NextValidAndFree(char *ptr, char *memEnd) {
+  char *ptr2 = ptr + GetChunkSize(ptr);
+  if (ptr2 >= memEnd) {
+    return false;
+  } else {
+    return (IsFree(ptr2));
   }
 }
 
