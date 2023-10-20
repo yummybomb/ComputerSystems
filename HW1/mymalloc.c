@@ -29,7 +29,9 @@ bool IsFullyCleared(void *start);
 // BEGIN mymalloc
 void *mymalloc(size_t _Size, char *file, int line) {
    if (_Size == 0) {
-      fprintf(stderr, "[ERROR] in file %s at line %d: cannot allocate 0 bytes\n", file, line);
+      fprintf(stderr,
+              "[ERROR] in file %s at line %d: cannot allocate 0 bytes\n", file,
+              line);
       return NULL;
    }
 
@@ -70,7 +72,8 @@ void *mymalloc(size_t _Size, char *file, int line) {
          memStart = GetNextChunk(memStart);
       }
    }
-   fprintf(stderr,"[ERROR] in file %s at line %d: not enough memory\n", file, line);
+   fprintf(stderr, "[ERROR] in file %s at line %d: not enough memory\n", file,
+           line);
    return NULL;
 }
 
@@ -85,7 +88,9 @@ void myfree(void *_Memory, char *file, int line) {
    while (memStart < memEnd) {
       if (memStart == headerStart) {
          if (IsFree(headerStart)) {
-            fprintf(stderr, "[ERROR] in file %s at line %d: Pointer is already free\n", file, line);
+            fprintf(stderr,
+                    "[ERROR] in file %s at line %d: Pointer is already free\n",
+                    file, line);
             return;
          } else {
             MarkAsFree(headerStart);
@@ -96,7 +101,10 @@ void myfree(void *_Memory, char *file, int line) {
    }
 
    if (ptrValid) {
-      fprintf(stderr, "[ERROR] in file %s at line %d: Pointer does not point to the start of a chunk \n", file, line);
+      fprintf(stderr,
+              "[ERROR] in file %s at line %d: Pointer does not point to the "
+              "start of a chunk \n",
+              file, line);
       return;
    }
 
