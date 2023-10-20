@@ -30,6 +30,7 @@ bool IsFullyCleared(void *start);
 void *mymalloc(size_t _Size, char *file, int line) {
    if (_Size == 0) {
       printf("Error: cannot allocate 0 bytes\n");
+      printf("Error occurred in file %s at line %d\n", file, line);
       return NULL;
    }
 
@@ -71,6 +72,7 @@ void *mymalloc(size_t _Size, char *file, int line) {
       }
    }
    printf("Error: not enough memory\n");
+   printf("Error occurred in file %s at line %d\n", file, line);
    return NULL;
 }
 
@@ -86,6 +88,7 @@ void myfree(void *_Memory, char *file, int line) {
       if (memStart == headerStart) {
          if (IsFree(headerStart)) {
             printf("Pointer is already free\n");
+            printf("Error occurred in file %s at line %d\n", file, line);
             return;
          } else {
             MarkAsFree(headerStart);
@@ -97,6 +100,7 @@ void myfree(void *_Memory, char *file, int line) {
 
    if (ptrValid) {
       printf("Pointer does not point to the start of a chunk\n");
+      printf("Error occurred in file %s at line %d\n", file, line);
       return;
    }
 
