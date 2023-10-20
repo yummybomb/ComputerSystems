@@ -87,30 +87,33 @@ void test4() {
 }
 
 void test5() {
+   
     int sizes[] = {1, 10, 40, 1000, 2096, 500, 32, 4, 36,199};
+   int arrSize = sizeof(sizes)/sizeof(int);
     // Shuffle the sizes array utilizing fisher yates
-    for (int i = sizeof(sizes)/sizeof(int) - 1; i > 0; i--) {
+    for (int i = arrSize - 1; i > 0; i--) {
     int j = rand() % (i + 1);
     int temp = sizes[i];
     sizes[i] = sizes[j];
     sizes[j] = temp;
 }
-   void* pointers[sizeof(sizes)/sizeof(int)];
+   void* pointers[arrSize];
    // Malloc the shuffled size array and put into the ptr array
-   for (int i = 0; i < sizeof(sizes)/sizeof(int); i++) {
+   for (int i = 0; i < arrSize; i++) {
+      printf("%d\n",sizes[i]);
       pointers[i] = malloc(sizes[i]);
    }
 
       // Shuffle the ptr array utilizing fisher yates
-      for (int i = sizeof(sizes)/sizeof(int) - 1; i > 0; i--) {
+      for (int i = arrSize - 1; i > 0; i--) {
          int j = rand() % (i + 1);
          void* temp = pointers[i];
          pointers[i] = pointers[j];
          pointers[j] = temp;
-   }
+      }
 
       // Deallocate the shuffled ptr array
-      for (int i = 0; i < sizeof(sizes)/sizeof(int); i++) {
+      for (int i = 0; i < arrSize; i++) {
          free(pointers[i]);
       }
         printf("TEST 5\n");
