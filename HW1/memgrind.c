@@ -63,16 +63,22 @@ void test3() {
    printf("MemClear?: %d\n", memCleared());  // Check if memory is cleared
 }
 
-void test4(){
-   char* charArr[60];
-   int* intArr[60];
-   for(int i = 0; i < 120; i++){
-      if(i % 2 == 0){charArr[i/2] = malloc(sizeof(char*));}
-      else{intArr[i/2] = malloc(sizeof(int*));}
+void test4() {
+   char *charArr[60];
+   int *intArr[60];
+   for (int i = 0; i < 120; i++) {
+      if (i % 2 == 0) {
+         charArr[i / 2] = malloc(sizeof(char *));
+      } else {
+         intArr[i / 2] = malloc(sizeof(int *));
+      }
    }
-   for(int i = 0; i < 120; i++){
-      if(i%2 == 0){free(intArr[i/2]);}
-      else{free(charArr[i/2]);}
+   for (int i = 0; i < 120; i++) {
+      if (i % 2 == 0) {
+         free(intArr[i / 2]);
+      } else {
+         free(charArr[i / 2]);
+      }
    }
    printf("TEST 4\n");
    printf("MemClear?: %d\n", memCleared());  // Check if memory is cleared
