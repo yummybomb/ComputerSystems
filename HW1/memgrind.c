@@ -63,8 +63,39 @@ void test3() {
    printf("MemClear?: %d\n", memCleared());  // Check if memory is cleared
 }
 
+void test5() {
+    int sizes[] = {1, 10, 40, 1000, 2096, 500, 32, 4, 36,199};
+    // Shuffle the sizes array utilizing fisher yates
+    for (int i = sizeof(sizes)/sizeof(int) - 1; i > 0; i--) {
+    int j = rand() % (i + 1);
+    int temp = sizes[i];
+    sizes[i] = sizes[j];
+    sizes[j] = temp;
+}
+   void* pointers[sizeof(sizes)/sizeof(int)];
+   // Malloc the shuffled size array and put into the ptr array
+   for (int i = 0; i < sizeof(sizes)/sizeof(int); i++) {
+      pointers[i] = malloc(sizes[i]);
+   }
+
+      // Shuffle the ptr array utilizing fisher yates
+      for (int i = sizeof(sizes)/sizeof(int) - 1; i > 0; i--) {
+         int j = rand() % (i + 1);
+         void* temp = pointers[i];
+         pointers[i] = pointers[j];
+         pointers[j] = temp;
+   }
+
+      // Deallocate the shuffled ptr array
+      for (int i = 0; i < sizeof(sizes)/sizeof(int); i++) {
+         free(pointers[i]);
+      }
+        printf("TEST 5\n");
+      printf("MemClear?: %d\n", memCleared());  // Check if memory is cleared
+
+}
+
 int main() {
    test1();
-   test2();
-   test3();
+   test5();
 }
