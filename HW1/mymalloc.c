@@ -96,7 +96,7 @@ void myfree(void *_Memory, char *file, int line) {
    }
 
    if (ptrValid) {
-      printf("Pointer not in heap\n");
+      printf("Pointer does not point to the start of a chunk\n");
       return;
    }
 
