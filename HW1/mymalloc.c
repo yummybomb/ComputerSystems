@@ -47,7 +47,7 @@ void *mymalloc(size_t _Size, char *file, int line) {
       if (chunkSize == 0 && isFree == true) {
          SetChunkSize(memStart, size + 8);
          MarkAsAllocated(memStart);
-         res = memStart;
+         res = memStart + 8;
          isFree = true;
          SetNextChunkSize(memStart, memEnd - (memStart + size + 8));
 
@@ -57,7 +57,7 @@ void *mymalloc(size_t _Size, char *file, int line) {
       if (isFree == true && chunkSize >= size + 8) {
          SetChunkSize(memStart, size + 8);
          MarkAsAllocated(memStart);
-         res = memStart;
+         res = memStart + 8;
 
          if (NextChunkIsUninitialized(memStart)) {
             SetNextChunkSize(memStart, chunkSize - (size + 8));
@@ -76,18 +76,19 @@ void *mymalloc(size_t _Size, char *file, int line) {
 
 // BEGIN myfree
 void myfree(void *_Memory, char *file, int line) {
+   char *headerStart = (char *)_Memory - 8;
    char *memStart = heap;
 
    char *memEnd = memStart + MEMSIZE * sizeof(double);
 
    bool ptrValid = true;
    while (memStart < memEnd) {
-      if (memStart == _Memory) {
-         if (IsFree(_Memory)) {
+      if (memStart == headerStart) {
+         if (IsFree(headerStart)) {
             printf("Pointer is already free\n");
             return;
          } else {
-            MarkAsFree(_Memory);
+            MarkAsFree(headerStart);
             ptrValid = false;
          }
       }
