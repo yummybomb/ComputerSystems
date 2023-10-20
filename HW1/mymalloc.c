@@ -76,7 +76,7 @@ void *mymalloc(size_t _Size, char *file, int line) {
 
 // BEGIN myfree
 void myfree(void *_Memory, char *file, int line) {
-   char* headerStart = (char*) _Memory - 8;
+   char *headerStart = (char *)_Memory - 8;
    char *memStart = heap;
 
    char *memEnd = memStart + MEMSIZE * sizeof(double);
