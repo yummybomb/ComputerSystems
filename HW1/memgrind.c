@@ -120,24 +120,23 @@ void test5() {
    }
 }
 
-//Performance Testing
-void getAllTests(int iterations){
-
+// Performance Testing
+void getAllTests(int iterations) {
    int size = 5;
    double times[size];
-   for(int i = 0; i < size; i++){
-      times[i] = performanceTest((i+1), iterations);
+   for (int i = 0; i < size; i++) {
+      times[i] = performanceTest((i + 1), iterations);
    }
 
    printf("---------------------------------------------\n");
    printf("Testing times for ");
    printf("%d", iterations);
    printf(" iterations");
-   for(int i = 0; i < size; i++){
+   for (int i = 0; i < size; i++) {
       printf("\nTest ");
-      printf("%d", (i+1));
+      printf("%d", (i + 1));
       printf(" time:\n");
-      printf("%lf",times[i]);
+      printf("%lf", times[i]);
       printf(" microseconds");
    }
    printf("\n---------------------------------------------\n");
