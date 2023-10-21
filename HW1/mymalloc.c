@@ -91,20 +91,29 @@ void *mymalloc(size_t _Size, char *file, int line) {
 }
 
 // BEGIN myfree
+// Reference FREE DESIGN NOTES in README for more information
 void myfree(void *_Memory, char *file, int line) {
+   // This section defines the start and end of the heap
    char *headerStart = (char *)_Memory - headerSize;
    char *memStart = heap;
    char *memEnd = memStart + MEMSIZE * sizeof(double);
 
+   // ptrInvalid is a boolean to check if:
+   // 1: The pointer passed is not freed
+   // 2: The pointer points to the start of a chunk
+   // ptrInvalid gets changed to false if any of these conditions are not met
    bool ptrInvalid = true;
    while (memStart < memEnd) {
       if (memStart == headerStart) {
          if (IsFree(headerStart)) {
+            // This indicates that the user is trying to free an already free
+            // chunk
             fprintf(stderr,
                     "[ERROR] in file %s at line %d: Pointer is already free\n",
                     file, line);
             return;
          } else {
+            // This indicates that the pointer is valid
             MarkAsFree(headerStart);
             ptrInvalid = false;
          }
@@ -112,6 +121,7 @@ void myfree(void *_Memory, char *file, int line) {
       memStart = GetNextChunk(memStart);
    }
 
+   // This indicates that the pointer does not point to the start of a chunk
    if (ptrInvalid) {
       fprintf(stderr,
               "[ERROR] in file %s at line %d: Pointer does not point to the "
@@ -120,6 +130,9 @@ void myfree(void *_Memory, char *file, int line) {
       return;
    }
 
+   // This section iterates through every chunk in the heap
+   // If any a chunk and the next chunk is free, then the two chunks will be
+   // coalesced CoalesceNextChunk() is called to coalesce two adjacent chunks
    memStart = heap;
    while (memStart < memEnd) {
       while (IsFree(memStart) && NextValidAndFree(memStart, memEnd)) {

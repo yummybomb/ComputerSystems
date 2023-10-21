@@ -104,13 +104,21 @@ void test5() {
 }
 
 // Performance Testing
+// This function prints
+//    1: If the memory has been cleared after each test
+//    2: How long it took for each test to run on average
+// Iterations is how many iterations each test will be run over
+// At the end, the total time is divided by however many iterations were ran,
+// which gives average time of the test
 void getAllTests(int iterations) {
+   // This creates an array that will store all the timings of each test
    int size = 5;
    double times[size];
    for (int i = 0; i < size; i++) {
       times[i] = performanceTest((i + 1), iterations);
    }
 
+   // This is all for printing all the information
    printf("---------------------------------------------\n");
    printf("Testing times for ");
    printf("%d", iterations);
@@ -125,6 +133,9 @@ void getAllTests(int iterations) {
    printf("\n---------------------------------------------\n");
 }
 
+// This function is used by getALlTests()
+// This function is used to get the timings of however many iterations of a
+// single test It also checks if the memory has been cleared
 double performanceTest(int testNum, int iterations) {
    struct timeval start, end;
    double timeTaken = 0;
@@ -209,4 +220,8 @@ double performanceTest(int testNum, int iterations) {
    return (timeTaken / iterations);
 }
 
+// For quick testing, use the getAllTests(int iterations) function
+// The int parameter 'iterations' is however many iterations a single test will
+// be run Each iteration will have its time checked, and then the average time
+// it took for the test to run will be printed
 int main() { getAllTests(50); }
