@@ -20,7 +20,7 @@ int main() {
       memset(objects[i], i + 1, SIZE);  // Fill with distinct byte pattern
    }
 
-   // Check each object still contains the written pattern
+   // Check each object still contains the byte pattern
    for (int i = 0; i < NUM_OBJECTS; i++) {
       for (int j = 0; j < SIZE; j++) {
          if (objects[i][j] != i + 1) {
@@ -30,7 +30,7 @@ int main() {
       }
    }
 
-   // Free memory
+   // Free all memory
    for (int i = 0; i < NUM_OBJECTS; i++) {
       free(objects[i]);
    }

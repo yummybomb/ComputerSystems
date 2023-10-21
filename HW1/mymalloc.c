@@ -38,56 +38,53 @@ void *mymalloc(size_t _Size, char *file, int line) {
    }
 
    // Define variables
-   int size = ROUNDUP8(_Size);
+   int userSize = ROUNDUP8(_Size);
+   int size = userSize + headerSize;
+
    char *res = NULL;
-   char *memStart = heap;
-   char *memEnd = memStart + MEMSIZE * sizeof(double);
+   char *memCur = heap;
+   char *memEnd = memCur + MEMSIZE * sizeof(double);
 
    // Begin iterating over heap headers
-   while (memStart < memEnd) {
-      int chunkSize = GetChunkSize(memStart);
-      bool isFree = IsFree(memStart);
-      // Init memory (header -> free)
-      // Loop through all memories
-      //    EC: If size + 8 == chunk.size, then return chunk ptr + chunk.isFree
-      //    = False Otherwise, if size + 8 > chunk.size, you cut and set next
-      //    free portion to remaining size + currChunk.isFree = false and return
-      //    chunk ptr
+   while (memCur < memEnd) {
+      int chunkSize = GetChunkSize(memCur);
+      bool isFree = IsFree(memCur);
 
-      // Initialize
+      // Initialize first header
       if (isFree == true && chunkSize == 0) {
-         SetChunkSize(memStart, size + headerSize);
-         MarkAsAllocated(memStart);
-         res = memStart + headerSize;
-         isFree = true;
-         SetNextChunkSize(memStart, memEnd - (memStart + size + headerSize));
-
+         SetChunkSize(memCur, size);
+         MarkAsAllocated(memCur);
+         
+         SetNextChunkSize(memCur, memEnd - (memCur + size));
+         
+         res = memCur + headerSize;
          return res;
       }
-      // Edge case, where chunk size equals requested size (accounting for
-      // header)
-      if (isFree == true && chunkSize == size + headerSize) {
-         MarkAsAllocated(memStart);
-         res = memStart + headerSize;
+      // Edge case, where chunk size equals requested size (accounting header)
+      if (isFree == true && chunkSize == size) {
+         MarkAsAllocated(memCur);
+
+         res = memCur + headerSize;
          return res;
       }
 
       // Cut
-      if (isFree == true && chunkSize > size + headerSize) {
-         SetChunkSize(memStart, size + headerSize);
-         MarkAsAllocated(memStart);
-         res = memStart + headerSize;
+      if (isFree == true && chunkSize > size) {
+         SetChunkSize(memCur, size);
+         MarkAsAllocated(memCur);
+         
+         SetNextChunkSize(memCur, chunkSize - size);
+         MarkNextChunkFree(memCur);
 
-         SetNextChunkSize(memStart, chunkSize - (size + headerSize));
-         MarkNextChunkFree(memStart);
-
+         res = memCur + headerSize;
          return res;
       }
-
-      if (isFree == false || chunkSize < size + headerSize) {
-         memStart = GetNextChunk(memStart);
+      // Not enough space, go next
+      if (isFree == false || chunkSize < size) {
+         memCur = GetNextChunk(memCur);
       }
    }
+   // No memory left in the heap to malloc for requested size
    fprintf(stderr, "[ERROR] in file %s at line %d: not enough memory\n", file,
            line);
    return NULL;
