@@ -4,7 +4,7 @@
 #include <sys/time.h>
 #include "mymalloc.h"
 
-//FORWARD DECLARATIONS
+// FORWARD DECLARATIONS
 double performanceTest(int testNum, int iterations);
 
 void test1() {
@@ -103,10 +103,10 @@ void test5() {
    for (int i = 0; i < arrSize; i++) {
       free(pointers[i]);
    }
-   
+
 }*/
 
-void test5(){
+void test5() {
    int sizes[] = {1, 10, 40, 100, 200, 500, 32, 4, 36, 199};
    int arrSize = sizeof(sizes) / sizeof(int);
    void *pointers[arrSize];
@@ -120,9 +120,8 @@ void test5(){
    }
 }
 
-//Performance Testing
-void getAllTests(int iterations){
-
+// Performance Testing
+void getAllTests(int iterations) {
    double times[5];
    times[0] = performanceTest(1, iterations);
    times[1] = performanceTest(2, iterations);
@@ -135,83 +134,84 @@ void getAllTests(int iterations){
    printf("%d", iterations);
    printf(" iterations\n");
    printf("Test 1 Time: ");
-   printf("%lf",times[0]);
+   printf("%lf", times[0]);
    printf("\n");
    printf("Test 2 Time: ");
-   printf("%lf",times[1]);
+   printf("%lf", times[1]);
    printf("\n");
    printf("Test 3 Time: ");
-   printf("%lf",times[2]);
+   printf("%lf", times[2]);
    printf("\n");
    printf("Test 4 Time: ");
-   printf("%lf",times[3]);
+   printf("%lf", times[3]);
    printf("\n");
    printf("Test 5 Time: ");
-   printf("%lf",times[4]);
+   printf("%lf", times[4]);
    printf("\n---------------------------------------------\n");
 }
 
-double performanceTest(int testNum, int iterations){
+double performanceTest(int testNum, int iterations) {
    struct timeval start, end;
    double timeTaken = 0;
-   switch(testNum){
+   switch (testNum) {
       case 1:
-         for(int i = 0; i < iterations; i++){
+         for (int i = 0; i < iterations; i++) {
             gettimeofday(&start, NULL);
             test1();
             gettimeofday(&end, NULL);
-            timeTaken += (end.tv_sec - start.tv_sec) * 1e6 + end.tv_usec - start.tv_usec;
+            timeTaken +=
+                (end.tv_sec - start.tv_sec) * 1e6 + end.tv_usec - start.tv_usec;
          }
          printf("TEST 1\n");
          printf("MemClear?: %d\n", memCleared());  // Check if memory is cleared
          break;
       case 2:
-         for(int i = 0; i < iterations; i++){
+         for (int i = 0; i < iterations; i++) {
             gettimeofday(&start, NULL);
             test2();
             gettimeofday(&end, NULL);
-            timeTaken += (end.tv_sec - start.tv_sec) * 1e6 + end.tv_usec - start.tv_usec;
+            timeTaken +=
+                (end.tv_sec - start.tv_sec) * 1e6 + end.tv_usec - start.tv_usec;
          }
          printf("TEST 2\n");
          printf("MemClear?: %d\n", memCleared());  // Check if memory is cleared
          break;
       case 3:
-         for(int i = 0; i < iterations; i++){
+         for (int i = 0; i < iterations; i++) {
             gettimeofday(&start, NULL);
             test3();
             gettimeofday(&end, NULL);
-            timeTaken += (end.tv_sec - start.tv_sec) * 1e6 + end.tv_usec - start.tv_usec;
+            timeTaken +=
+                (end.tv_sec - start.tv_sec) * 1e6 + end.tv_usec - start.tv_usec;
          }
          printf("TEST 3\n");
          printf("MemClear?: %d\n", memCleared());  // Check if memory is cleared
          break;
       case 4:
-         for(int i = 0; i < iterations; i++){
+         for (int i = 0; i < iterations; i++) {
             gettimeofday(&start, NULL);
             test4();
             gettimeofday(&end, NULL);
-            timeTaken += (end.tv_sec - start.tv_sec) * 1e6 + end.tv_usec - start.tv_usec;
+            timeTaken +=
+                (end.tv_sec - start.tv_sec) * 1e6 + end.tv_usec - start.tv_usec;
          }
          printf("TEST 4\n");
          printf("MemClear?: %d\n", memCleared());  // Check if memory is cleared
          break;
       case 5:
-         for(int i = 0; i < iterations; i++){
+         for (int i = 0; i < iterations; i++) {
             gettimeofday(&start, NULL);
             test5();
             gettimeofday(&end, NULL);
-            timeTaken += (end.tv_sec - start.tv_sec) * 1e6 + end.tv_usec - start.tv_usec;
+            timeTaken +=
+                (end.tv_sec - start.tv_sec) * 1e6 + end.tv_usec - start.tv_usec;
          }
          printf("TEST 5\n");
          printf("MemClear?: %d\n", memCleared());  // Check if memory is cleared
          break;
    }
 
-
    return (timeTaken / iterations);
-
 }
 
-int main() {
-   getAllTests(50);
-}
+int main() { getAllTests(50); }
