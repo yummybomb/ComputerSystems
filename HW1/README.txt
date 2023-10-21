@@ -127,3 +127,20 @@ ERRORS:
         This error occurs when the pointer passed through myfree does not point to the start of a valid chunk
         This error can occur if the pointer points to the middle of a valid chunk, or if the pointer is not in the heap
 
+
+TESTING TIMES:
+
+Here are the times we got by using the getAllTests() on iLab:
+
+Testing times for 50 iterations
+
+Test 1 time:
+6.620000 microseconds
+Test 2 time:
+122.320000 microseconds
+Test 3 time:
+12.320000 microseconds
+Test 4 time:
+123.100000 microseconds
+Test 5 time:
+2.480000 microseconds
