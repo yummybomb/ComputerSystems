@@ -49,8 +49,10 @@ void *mymalloc(size_t _Size, char *file, int line) {
       bool isFree = IsFree(memStart);
       // Init memory (header -> free)
       // Loop through all memories
-      //    EC: If size + 8 == chunk.size, then return chunk ptr + chunk.isFree = False
-      //    Otherwise, if size + 8 > chunk.size, you cut and set next free portion to remaining size + currChunk.isFree = false and return chunk ptr
+      //    EC: If size + 8 == chunk.size, then return chunk ptr + chunk.isFree
+      //    = False Otherwise, if size + 8 > chunk.size, you cut and set next
+      //    free portion to remaining size + currChunk.isFree = false and return
+      //    chunk ptr
 
       // Initialize
       if (isFree == true && chunkSize == 0) {
@@ -62,7 +64,8 @@ void *mymalloc(size_t _Size, char *file, int line) {
 
          return res;
       }
-      // Edge case, where chunk size equals requested size (accounting for header)
+      // Edge case, where chunk size equals requested size (accounting for
+      // header)
       if (isFree == true && chunkSize == size + headerSize) {
          MarkAsAllocated(memStart);
          res = memStart + headerSize;
@@ -163,7 +166,6 @@ bool IsFree(void *start) { return *((char *)start + 4) == 0; }
 
 void SetChunkSize(void *start, int size) { *(int *)start = size; }
 
-
 void MarkAsAllocated(void *start) { *((char *)start + 4) = 1; }
 
 void MarkAsFree(void *start) { *((char *)start + 4) = 0; }
@@ -176,7 +178,7 @@ void SetNextChunkSize(void *start, int size) {
    SetChunkSize((char *)start + GetChunkSize(start), size);
 }
 
-void MarkNextChunkFree(void *start){
+void MarkNextChunkFree(void *start) {
    MarkAsFree((char *)start + GetChunkSize(start));
 }
 
@@ -188,6 +190,7 @@ bool IsUninitialized(void *start) {
 }
 
 bool IsFullyCleared(void *start) {
-   if (GetChunkSize(start) == headerSize * MEMSIZE && IsFree(start) == true) return true;
+   if (GetChunkSize(start) == headerSize * MEMSIZE && IsFree(start) == true)
+      return true;
    return false;
 }
