@@ -118,9 +118,7 @@ void test5() {
 }
 
 int main() {
-   test1();
-   test2();
-   test3();
-   test4();
-   test5();
+   for (int i = 0; i < 10; i++){
+      test5();
+   }
 }
