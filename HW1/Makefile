@@ -5,13 +5,13 @@ CC = gcc
 CFLAGS = -Wall -g
 
 # define the C source files
-SRCS = memgrind.c mymalloc.c testmalloc.c
+SRCS = memgrind.c mymalloc.c testmallocfree.c
 
 # define the C object files 
 OBJS = $(SRCS:.c=.o)
 
 # define the executable file 
-MAIN = memgrind testmalloc
+MAIN = memgrind testmallocfree
 
 all: $(MAIN)
 
@@ -24,8 +24,8 @@ mymalloc.o: mymalloc.c mymalloc.h
 memgrind.o: memgrind.c mymalloc.h
 	$(CC) $(CFLAGS) -c memgrind.c
 
-testmalloc.o: testmalloc.c mymalloc.h
-	$(CC) $(CFLAGS) -c testmalloc.c
+testmallocfree.o: testmallocfree.c mymalloc.h
+	$(CC) $(CFLAGS) -c testmallocfree.c
 
 clean:
 	$(RM) *.o *~ $(MAIN)
