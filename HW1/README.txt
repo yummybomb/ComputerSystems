@@ -11,7 +11,7 @@ Nicholas Chen - nhc29
 MALLOC DESIGN NOTES:
 
 
-	The malloc function allocates a memory block of the users' requested size + the size of the header. 
+	The malloc function allocates a memory block of the users' requested size + the size of the header and then returns a ptr to the userData. 
 
 
 	First the function checks if our heap is uninitialized. If it is, we initialize the malloced header and the header of the free shortly after.
@@ -26,7 +26,7 @@ Case 2 (chunk isFree AND chunkSize > userSize + headerSize):
 	We cut the current chunk by shortening the header size, marking the first part allocated, and making the next chunk free and the remainder of the chunk. Then we return the pointer of the data.
 Case 3(chunk not free or chunkSize < userSize + headerSize):
 	We move onto the next space where we can fit the chunk
-If the while loop ends without any return, we know that there is no space left in the chunk, so we print an error message that displays the file and  line number where it is called and return null.
+If the while loop ends without any return, we know that there is no space left in the chunk, so we print an error message that displays the file and line number where it is called and return null.
 
 
 FREE DESIGN NOTES:
@@ -76,7 +76,11 @@ Performance Testing:
 TESTING PLAN:
 
 
-Testmallocfree.c: correctness testing we get 7 objects of size 512 (large objects) and allocate them with malloc, and then utilize the <string.h> library to memset them with a distinct byte pattern. Then we will check if the objects follow their respective byte pattern after memsetting all the objects. This will prove that the user is able to allocate memory and write memory onto the heap. After, we free the memory and check if the heap is free. If it is, all the tests are successful and we print a success. If there is a failure on any part of this test, we will print a fail message and the respective failure.
+    Testmallocfree.c: correctness testing we get 7 objects of size 512 (large objects) and allocate them with malloc, and then utilize the <string.h> library to memset them with a distinct byte pattern. 
+    Then we will check if the objects follow their respective byte pattern after memsetting all the objects. 
+    This will prove that the user is able to allocate memory and write memory onto the heap. 
+    After, we free the memory and check if the heap is free. If it is, all the tests are successful and we print a success. 
+    If there is a failure on any part of this test, we will print a fail message and the respective failure.
 
 
 
