@@ -16,8 +16,11 @@ Performance Testing:
     To test for 50 iterations, do getAllTests(50);
     
     This function will return the time it takes for the computer to run 50 iterations of each test case.
+    Additionally, before testing times, the getAllTests() function says whether memory has been cleared after each test has been run.
 
     This function calls upon the function performanceTest(int testNum, int iterations). performanceTest takes in the test number and number of iterations testing will be done over for that test, and get the average time it took for the test to run.
+
+    do NOT run each test individually. There are no print statements in the individual tests, so you will not get any feedback. To test a single iteration of all test, do getAllTests(1);
 
 TESTING PLAN:
 

@@ -123,31 +123,23 @@ void test5(){
 //Performance Testing
 void getAllTests(int iterations){
 
-   double times[5];
-   times[0] = performanceTest(1, iterations);
-   times[1] = performanceTest(2, iterations);
-   times[2] = performanceTest(3, iterations);
-   times[3] = performanceTest(4, iterations);
-   times[4] = performanceTest(5, iterations);
+   int size = 5;
+   double times[size];
+   for(int i = 0; i < size; i++){
+      times[i] = performanceTest((i+1), iterations);
+   }
 
    printf("---------------------------------------------\n");
    printf("Testing times for ");
    printf("%d", iterations);
-   printf(" iterations\n");
-   printf("Test 1 Time: ");
-   printf("%lf",times[0]);
-   printf("\n");
-   printf("Test 2 Time: ");
-   printf("%lf",times[1]);
-   printf("\n");
-   printf("Test 3 Time: ");
-   printf("%lf",times[2]);
-   printf("\n");
-   printf("Test 4 Time: ");
-   printf("%lf",times[3]);
-   printf("\n");
-   printf("Test 5 Time: ");
-   printf("%lf",times[4]);
+   printf(" iterations");
+   for(int i = 0; i < size; i++){
+      printf("\nTest ");
+      printf("%d", (i+1));
+      printf(" time:\n");
+      printf("%lf",times[i]);
+      printf(" microseconds");
+   }
    printf("\n---------------------------------------------\n");
 }
 
