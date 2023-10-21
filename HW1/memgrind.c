@@ -73,7 +73,6 @@ void test4() {
    }
 }
 
-
 void test5() {
    int sizes[] = {1, 10, 40, 1000, 2096, 500, 32, 4, 36, 199};
    int arrSize = sizeof(sizes) / sizeof(int);
@@ -102,7 +101,6 @@ void test5() {
    for (int i = 0; i < arrSize; i++) {
       free(pointers[i]);
    }
-
 }
 
 // Performance Testing
@@ -140,12 +138,11 @@ double performanceTest(int testNum, int iterations) {
                 (end.tv_sec - start.tv_sec) * 1e6 + end.tv_usec - start.tv_usec;
          }
          printf("TEST 1\n");
- if (memCleared() == 1){
-   printf("MemCleared: true\n");
-}
-else{
-   printf("MemCleared: false\n");
-}  // Check if memory is cleared
+         if (memCleared() == 1) {
+            printf("MemCleared: true\n");
+         } else {
+            printf("MemCleared: false\n");
+         }  // Check if memory is cleared
          break;
       case 2:
          for (int i = 0; i < iterations; i++) {
@@ -156,12 +153,11 @@ else{
                 (end.tv_sec - start.tv_sec) * 1e6 + end.tv_usec - start.tv_usec;
          }
          printf("TEST 2\n");
-        if (memCleared() == 1){
-   printf("MemCleared: true\n");
-}
-else{
-   printf("MemCleared: false\n");
-}  // Check if memory is cleared
+         if (memCleared() == 1) {
+            printf("MemCleared: true\n");
+         } else {
+            printf("MemCleared: false\n");
+         }  // Check if memory is cleared
          break;
       case 3:
          for (int i = 0; i < iterations; i++) {
@@ -172,12 +168,11 @@ else{
                 (end.tv_sec - start.tv_sec) * 1e6 + end.tv_usec - start.tv_usec;
          }
          printf("TEST 3\n");
-      if (memCleared() == 1){
-   printf("MemCleared: true\n");
-}
-else{
-   printf("MemCleared: false\n");
-}  // Check if memory is cleared
+         if (memCleared() == 1) {
+            printf("MemCleared: true\n");
+         } else {
+            printf("MemCleared: false\n");
+         }  // Check if memory is cleared
          break;
       case 4:
          for (int i = 0; i < iterations; i++) {
@@ -188,12 +183,11 @@ else{
                 (end.tv_sec - start.tv_sec) * 1e6 + end.tv_usec - start.tv_usec;
          }
          printf("TEST 4\n");
-         if (memCleared() == 1){
-   printf("MemCleared: true\n");
-}
-else{
-   printf("MemCleared: false\n");
-}  // Check if memory is cleared
+         if (memCleared() == 1) {
+            printf("MemCleared: true\n");
+         } else {
+            printf("MemCleared: false\n");
+         }  // Check if memory is cleared
          break;
       case 5:
          for (int i = 0; i < iterations; i++) {
@@ -204,12 +198,11 @@ else{
                 (end.tv_sec - start.tv_sec) * 1e6 + end.tv_usec - start.tv_usec;
          }
          printf("TEST 5\n");
-         if (memCleared() == 1){
-   printf("MemCleared: true\n");
-}
-else{
-   printf("MemCleared: false\n");
-}  // Check if memory is cleared
+         if (memCleared() == 1) {
+            printf("MemCleared: true\n");
+         } else {
+            printf("MemCleared: false\n");
+         }  // Check if memory is cleared
          break;
    }
 
@@ -217,4 +210,3 @@ else{
 }
 
 int main() { getAllTests(50); }
-
