@@ -97,10 +97,9 @@ void *mymalloc(size_t _Size, char *file, int line) {
 void myfree(void *_Memory, char *file, int line) {
    char *headerStart = (char *)_Memory - headerSize;
    char *memStart = heap;
-
    char *memEnd = memStart + MEMSIZE * sizeof(double);
 
-   bool ptrValid = true;
+   bool ptrInvalid = true;
    while (memStart < memEnd) {
       if (memStart == headerStart) {
          if (IsFree(headerStart)) {
@@ -110,13 +109,13 @@ void myfree(void *_Memory, char *file, int line) {
             return;
          } else {
             MarkAsFree(headerStart);
-            ptrValid = false;
+            ptrInvalid = false;
          }
       }
       memStart = GetNextChunk(memStart);
    }
 
-   if (ptrValid) {
+   if (ptrInvalid) {
       fprintf(stderr,
               "[ERROR] in file %s at line %d: Pointer does not point to the "
               "start of a chunk \n",

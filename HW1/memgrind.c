@@ -73,7 +73,7 @@ void test4() {
    }
 }
 
-/**
+
 void test5() {
    int sizes[] = {1, 10, 40, 1000, 2096, 500, 32, 4, 36, 199};
    int arrSize = sizeof(sizes) / sizeof(int);
@@ -87,7 +87,6 @@ void test5() {
    void *pointers[arrSize];
    // Malloc the shuffled size array and put into the ptr array
    for (int i = 0; i < arrSize; i++) {
-      printf("%d\n", sizes[i]);
       pointers[i] = malloc(sizes[i]);
    }
 
@@ -104,20 +103,6 @@ void test5() {
       free(pointers[i]);
    }
 
-}*/
-
-void test5() {
-   int sizes[] = {1, 10, 40, 100, 200, 500, 32, 4, 36, 199};
-   int arrSize = sizeof(sizes) / sizeof(int);
-   void *pointers[arrSize];
-
-   for (int i = 0; i < arrSize; i++) {
-      pointers[i] = malloc(sizes[i]);
-   }
-
-   for (int i = 0; i < arrSize; i++) {
-      free(pointers[i]);
-   }
 }
 
 // Performance Testing
@@ -155,7 +140,12 @@ double performanceTest(int testNum, int iterations) {
                 (end.tv_sec - start.tv_sec) * 1e6 + end.tv_usec - start.tv_usec;
          }
          printf("TEST 1\n");
-         printf("MemClear?: %d\n", memCleared());  // Check if memory is cleared
+ if (memCleared() == 1){
+   printf("MemCleared: true\n");
+}
+else{
+   printf("MemCleared: false\n");
+}  // Check if memory is cleared
          break;
       case 2:
          for (int i = 0; i < iterations; i++) {
@@ -166,7 +156,12 @@ double performanceTest(int testNum, int iterations) {
                 (end.tv_sec - start.tv_sec) * 1e6 + end.tv_usec - start.tv_usec;
          }
          printf("TEST 2\n");
-         printf("MemClear?: %d\n", memCleared());  // Check if memory is cleared
+        if (memCleared() == 1){
+   printf("MemCleared: true\n");
+}
+else{
+   printf("MemCleared: false\n");
+}  // Check if memory is cleared
          break;
       case 3:
          for (int i = 0; i < iterations; i++) {
@@ -177,7 +172,12 @@ double performanceTest(int testNum, int iterations) {
                 (end.tv_sec - start.tv_sec) * 1e6 + end.tv_usec - start.tv_usec;
          }
          printf("TEST 3\n");
-         printf("MemClear?: %d\n", memCleared());  // Check if memory is cleared
+      if (memCleared() == 1){
+   printf("MemCleared: true\n");
+}
+else{
+   printf("MemCleared: false\n");
+}  // Check if memory is cleared
          break;
       case 4:
          for (int i = 0; i < iterations; i++) {
@@ -188,7 +188,12 @@ double performanceTest(int testNum, int iterations) {
                 (end.tv_sec - start.tv_sec) * 1e6 + end.tv_usec - start.tv_usec;
          }
          printf("TEST 4\n");
-         printf("MemClear?: %d\n", memCleared());  // Check if memory is cleared
+         if (memCleared() == 1){
+   printf("MemCleared: true\n");
+}
+else{
+   printf("MemCleared: false\n");
+}  // Check if memory is cleared
          break;
       case 5:
          for (int i = 0; i < iterations; i++) {
@@ -199,7 +204,12 @@ double performanceTest(int testNum, int iterations) {
                 (end.tv_sec - start.tv_sec) * 1e6 + end.tv_usec - start.tv_usec;
          }
          printf("TEST 5\n");
-         printf("MemClear?: %d\n", memCleared());  // Check if memory is cleared
+         if (memCleared() == 1){
+   printf("MemCleared: true\n");
+}
+else{
+   printf("MemCleared: false\n");
+}  // Check if memory is cleared
          break;
    }
 
@@ -207,3 +217,4 @@ double performanceTest(int testNum, int iterations) {
 }
 
 int main() { getAllTests(50); }
+
