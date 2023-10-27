@@ -1,3 +1,10 @@
 # ComputerSystems
-Anuraag and I are baddies
-He he he haw
+HW1 - Custom Malloc
+
+
+Functionality -
+AutoLinting
+
+ToDo -
+Implement Unit Testing
+Make auto linter not change the code repo directly
