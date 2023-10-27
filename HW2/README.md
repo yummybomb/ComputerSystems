@@ -1,3 +1,7 @@
+Partners:
+Nicholas Chen - nhc29
+Anuraag Sarkar - [NETIDHERE]
+
 Rules
 
 For a word:
