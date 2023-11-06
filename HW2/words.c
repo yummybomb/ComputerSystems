@@ -15,9 +15,13 @@ int main(int argc, char* argv[]){
         return 1;
     }
 
-    for(int i = 1; i < argc; i++){
-        
+    //test first file for now
+    printf("%d\n", processFile(argv[1]));
+    
+    for (int i = 1; i < argc; i++){
+        break;
     }
+    return 0;
 }
 
 bool processFile(char* fileName) {
