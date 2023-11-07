@@ -94,7 +94,14 @@ bool processFile(const char* fileName) {
 
 
         }
-        //TODO: Check if the very last character is part of a word, then add word to hashmap
+        //Check if the very last character is part of a word, then add word to hashmap
+        next = '\0';
+        if(isValidCharacter){
+            word[wordIndex++] = c;
+            word[wordIndex] = '\0';
+            //TODO: push to hashmap
+
+        }
 
     }
 
