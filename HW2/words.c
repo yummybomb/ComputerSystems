@@ -48,10 +48,10 @@ bool processFile(const char* fileName) {
         //TODO: Empty File Case
     }
     if(bytesRead == 1){
-        //TODO: Add Only the first character to hashmap
         if(isalpha(firstTwo[0])){
             word[wordIndex++] = firstTwo[0];
             word[wordIndex] = '\0';
+            //TODO: Add Only the first character to hashmap
         }
         else{
             //TODO: Empty File
