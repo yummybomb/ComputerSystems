@@ -49,6 +49,13 @@ bool processFile(const char* fileName) {
     }
     if(bytesRead == 1){
         //TODO: Add Only the first character to hashmap
+        if(isalpha(firstTwo[0])){
+            word[wordIndex++] = firstTwo[0];
+            word[wordIndex] = '\0';
+        }
+        else{
+            //TODO: Empty File
+        }
     }
     else{
         char prev = firstTwo[0]; char c = firstTwo[1]; char next = '\0';
