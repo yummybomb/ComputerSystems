@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <fcntl.h> 
 #include <ctype.h>
+#include "hashMap.h"
 
 #define FILE_NOT_FOUND_ERROR "File not found"
 #define FILE_NOT_OPENED_ERROR "File not opened yet"
