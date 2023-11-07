@@ -50,7 +50,7 @@ bool processFile(const char* fileName) {
 
     }
     else{
-        char c = firstThree[1]; char prev = firstThree[0]; char next = firstThree[2];
+        char prev = firstThree[0]; char c = firstThree[1]; char next = firstThree[2];
         while (read(fd, &c, 1) > 0){
             if(wordIndex >= wordCapacity){
                 wordCapacity *= 2;
@@ -61,7 +61,9 @@ bool processFile(const char* fileName) {
         }
     }
 
-    bool isValidCharacter()
+    bool isValidCharacter(char prev, char curr, char next){
+        
+    }
 
     /*
     while (read(fd, &c, 1) > 0) {
