@@ -49,7 +49,6 @@ void generate_stringsToCheck(char *str, int index, int length) {
 }
 
 int main(int argc, char* argv[]){
-    
     map = init_map();
     for(int i = 1; i < argc; i++){
         processFile(argv[i], map);
@@ -175,6 +174,8 @@ bool processFile(const char* fileName, map_t *map) {
 
     }
     free(word);
+
+    printMap(map);
 
     if (close(fd) < 0) { 
         fprintf(stderr, "Error on line %d : %s\n", __LINE__, FILE_NOT_OPENED_ERROR);
