@@ -11,9 +11,10 @@
 #define FILE_NOT_OPENED_ERROR "File not opened yet"
 #define STARTSIZE 8
 
-bool processFile(const char* fileName);
+bool processFile(const char* fileName, map_t *map);
 bool processDirectory(const char* dirName);
 int isValidCharacter(char prev, char curr, char next);
+void printWords(map_t *map);
 
 long long global_ctr = 1;
 map_t* map;
@@ -48,16 +49,21 @@ void generate_stringsToCheck(char *str, int index, int length) {
 }
 
 int main(int argc, char* argv[]){
+    
     map = init_map();
-    int length = 6;
-    char str[length+1];
-    generate_strings(str, 0, length);
-    printf("%d\n", map_length(map));
+    for(int i = 1; i < argc; i++){
+        processFile(argv[i], map);
+    }
+    printWords(map);
+    // int length = 6;
+    // char str[length+1];
+    // generate_strings(str, 0, length);
+    // printf("%d\n", map_length(map));
 
-    global_ctr = 1;
-    char str2[length+1];
-    generate_stringsToCheck(str2, 0, length);
-    printf("done\n");
+    // global_ctr = 1;
+    // char str2[length+1];
+    // generate_stringsToCheck(str2, 0, length);
+    // printf("done\n");
     
 
 
@@ -73,10 +79,12 @@ int main(int argc, char* argv[]){
     // for (int i = 1; i < argc; i++){
     //     processFile(argv[i]);
     // }
+
+    map_destroy(map);
     return 0;
 }
 
-bool processFile(const char* fileName) {
+bool processFile(const char* fileName, map_t *map) {
     int fd = open(fileName, O_RDONLY);
     if (fd < 0) {
         fprintf(stderr, "Error on line %d : %s\n", __LINE__, FILE_NOT_FOUND_ERROR);
@@ -100,7 +108,8 @@ bool processFile(const char* fileName) {
         if(isalpha(firstTwo[0])){
             word[wordIndex++] = firstTwo[0];
             word[wordIndex] = '\0';
-            //TODO: Add Only the first character to hashmap
+            //Add Only the first character to hashmap
+            map_inc(map, word);
         }
         else{
             //TODO: Empty File
@@ -128,8 +137,9 @@ bool processFile(const char* fileName) {
                 //New word
                 word[wordIndex] = '\0';
                 // ADD WORD TO HASHMAPHERE
-
-                word = realloc(word, STARTSIZE);
+                map_inc(map, word);
+                free(word);
+                word = calloc(STARTSIZE, 1);
                 wordCapacity = STARTSIZE;
                 wordIndex = 0;
             }
@@ -137,8 +147,9 @@ bool processFile(const char* fileName) {
                 //For ' special case (new word, but the ' is part of the next word)
                 word[wordIndex] = '\0';
                 // ADD WORD TO HASHMAPHERE
-
-                word = realloc(word, STARTSIZE);
+                map_inc(map, word);
+                free(word); 
+                word = calloc(STARTSIZE, 1);
                 wordCapacity = STARTSIZE;
                 word[0] = next; //next should be '
                 wordIndex = 1;
@@ -155,12 +166,12 @@ bool processFile(const char* fileName) {
         if(isValidCharacter(prev, c, next)){
             word[wordIndex++] = c;
             word[wordIndex] = '\0';
-            //TODO: push to hashmap
+            //push to hashmap
+            map_inc(map, word);
 
         }
 
     }
-
     free(word);
 
     if (close(fd) < 0) { 
@@ -189,4 +200,48 @@ bool processDirectory(const char* dirName){
     //TODO LATER
     return false;
 
+}
+
+void printWords(map_t *map){
+    int cap = map->capacity;
+    int length = map_length(map);
+
+    char* wordList[length];
+    int wordCount[length];
+    int curr = 0;
+
+    //Copy all words in the hash map to these arrays to be sorted
+    for(int i = 0; i < cap; i++){
+        char* key = map->items[i].key;
+        int value = map->items[i].value;
+
+        if(curr < length){
+            if(value > 0){
+            wordList[curr] = key;
+            wordCount[curr] = value;
+            curr++;
+            }
+        }
+        else break;
+    }
+
+    //Bubble sort implementation
+    for(int i = 0; i < length-1; i++){
+        for(int j = 0; j < length-i; j++){
+            if(wordCount[j] > wordCount[j+1]){
+                int temp = wordCount[j];
+                wordCount[j] = wordCount[j+1];
+                wordCount[j+1] = temp;
+
+                char* tempString = wordList[j];
+                wordList[j] = wordList[j+1];
+                wordList[j+1] = tempString;
+            }
+        }
+    }
+
+    //Print out all the words
+    for(int i = 0; i < length; i++){
+        printf("%s %d\n", wordList[i], wordCount[i]);
+    }
 }
