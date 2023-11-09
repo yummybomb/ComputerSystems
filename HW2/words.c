@@ -21,8 +21,22 @@ map_t* map;
 void generate_strings(char *str, int index, int length) {
     if (index == length) {
         str[index] = '\0'; 
-        printf("%d\n", map_length(map));
         map_set(map, str, global_ctr);
+        assert(map_get(map, str) == global_ctr);
+        global_ctr++;
+        return;
+    }
+
+    for (char c = 'a'; c <= 'z'; c++) {
+        str[index] = c;
+        generate_strings(str, index + 1, length);
+    }
+}
+
+void generate_stringsToCheck(char *str, int index, int length) {
+    if (index == length) {
+        str[index] = '\0'; 
+        assert(map_get(map, str) == global_ctr);
         global_ctr++;
         return;
     }
@@ -35,11 +49,20 @@ void generate_strings(char *str, int index, int length) {
 
 int main(int argc, char* argv[]){
     map = init_map();
-    int length = 5;
-    char str[length + 1];  // +1 for the null terminator
+    int length = 7;
+    char str[length+1];
     generate_strings(str, 0, length);
-    printf("%s\n", str);
-    printf("%lld\n", global_ctr);
+    printf("%d\n", map_length(map));
+
+    global_ctr = 1;
+    char str2[length+1];
+    generate_stringsToCheck(str2, 0, length);
+    printf("done\n");
+    
+
+
+
+
     // Check if any arguments were supplied
     // if (argc < 2) {
     //     printf("No directories or files specified.\n");

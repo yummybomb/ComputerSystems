@@ -8,7 +8,7 @@
 
 typedef unsigned long long ull;
 
-ull hashcode(map_t *map, const char *s);
+int hashcode(map_t *map, const char *s);
 
 
 
@@ -27,13 +27,12 @@ map_t* init_map(){
         free(hashmap);
         return NULL;
     }
-    
     return hashmap;
 }
 
-ull hashcode(map_t *map, const char *s){
-    ull hash = 0;
-    ull multiplier = M;
+int hashcode(map_t *map, const char *s){
+    int hash = 0;
+    int multiplier = M;
     for (int i = 0; s[i] != '\0'; i++){
         hash = (hash +(s[i]*multiplier)%map->capacity)%map->capacity;
         multiplier = (multiplier * M)%map->capacity;
@@ -93,11 +92,11 @@ int map_rehash(map_t *map){
 }
 
 
-int map_get(map_t *map, const char* key){
+int map_get(map_t *map, char* key){
     int curr = hashcode(map, key);
 
     for (int i = 0; i < CHAIN_LEN; i++){
-        int isUsed = map->items[curr].value;
+        bool isUsed = map->items[curr].isUsed;
         if(isUsed == true){
             if (strcmp(map->items[curr].key, key)==0){
                 return map->items[curr].value;
