@@ -16,6 +16,8 @@
         "stdio.h": "c",
         "stdbool.h": "c",
         "stdlib.h": "c",
-        "hashmap.h": "c"
+        "hashmap.h": "c",
+        "chrono": "c",
+        "ranges": "c"
     }
 }

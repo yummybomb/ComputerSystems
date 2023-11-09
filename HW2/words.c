@@ -11,13 +11,15 @@
 #define FILE_NOT_OPENED_ERROR "File not opened yet"
 #define STARTSIZE 8
 
+long long global_ctr = 1;
+map_t* map;
+
 bool processFile(const char* fileName, map_t *map);
 bool processDirectory(const char* dirName);
 int isValidCharacter(char prev, char curr, char next);
 void printWords(map_t *map);
 
-long long global_ctr = 1;
-map_t* map;
+
 
 void generate_strings(char *str, int index, int length) {
     if (index == length) {
@@ -47,6 +49,7 @@ void generate_stringsToCheck(char *str, int index, int length) {
         generate_strings(str, index + 1, length);
     }
 }
+
 
 int main(int argc, char* argv[]){
     
@@ -79,8 +82,6 @@ int main(int argc, char* argv[]){
     // for (int i = 1; i < argc; i++){
     //     processFile(argv[i]);
     // }
-
-    map_destroy(map);
     return 0;
 }
 
@@ -92,7 +93,8 @@ bool processFile(const char* fileName, map_t *map) {
     }
 
     //Initialize buffer
-    char* word = malloc(STARTSIZE);
+    char* word = calloc(STARTSIZE, sizeof(char));
+    
     int wordCapacity = STARTSIZE;
     int wordIndex = 0;
     
@@ -139,7 +141,7 @@ bool processFile(const char* fileName, map_t *map) {
                 // ADD WORD TO HASHMAPHERE
                 map_inc(map, word);
                 free(word);
-                word = calloc(STARTSIZE, 1);
+                word = calloc(STARTSIZE, sizeof(char));
                 wordCapacity = STARTSIZE;
                 wordIndex = 0;
             }
@@ -170,10 +172,9 @@ bool processFile(const char* fileName, map_t *map) {
             word[wordIndex] = '\0';
             //push to hashmap
             map_inc(map, word);
-
         }
-
     }
+    map_inc(map,word);
     free(word);
 
     if (close(fd) < 0) { 
@@ -214,17 +215,15 @@ void printWords(map_t *map){
 
     //Copy all words in the hash map to these arrays to be sorted
     for(int i = 0; i < cap; i++){
-        char* key = map->items[i].key;
-        int value = map->items[i].value;
+        if (curr >= length) break;
 
-        if(curr < length){
-            if(value > 0){
+        if(map->items[i].isUsed == true){
+            char* key = map->items[i].key;
+            int value = map->items[i].value;
             wordList[curr] = key;
             wordCount[curr] = value;
             curr++;
-            }
         }
-        else break;
     }
 
     //Bubble sort implementation
@@ -243,7 +242,7 @@ void printWords(map_t *map){
     }
 
     //Print out all the words
-    for(int i = 0; i < length; i++){
-        printf("%s %d\n", wordList[i], wordCount[i]);
-    }
+    // for(int i = 0; i < length; i++){
+    //     printf("%s %d\n", wordList[i], wordCount[i]);
+    // }
 }
