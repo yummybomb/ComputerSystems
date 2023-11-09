@@ -149,6 +149,8 @@ bool processFile(const char* fileName, map_t *map) {
     }
     free(word);
 
+    printMap(map);
+
     if (close(fd) < 0) { 
         fprintf(stderr, "Error on line %d : %s\n", __LINE__, FILE_NOT_OPENED_ERROR);
         return false;

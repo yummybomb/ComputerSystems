@@ -155,3 +155,14 @@ int map_inc(map_t *map, const char* key){
     }
     return value;
 }
+
+//This prints UNSORTED
+void printMap(map_t *map){
+    int len = map->capacity;
+    item* itemList = map->items;
+    for(int i = 0; i < len; i++){
+        if(itemList[i].value > 0){
+            printf("%s %d\n", itemList[i].key, itemList[i].value);
+        }
+    }
+}
