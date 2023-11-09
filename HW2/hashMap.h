@@ -2,24 +2,24 @@
 #define HASHMAP_H
 #include <stdbool.h>
 
-#define MAP_NOMEM -2 // no memory
-#define MAP_FULL -1  // map is full
-#define MAP_OK 0     // good
+#define MAP_NOMEM -2  // no memory
+#define MAP_FULL -1   // map is full
+#define MAP_OK 0      // good
 
 #define INITIAL_CAPACITY 512
 #define M 10099
 #define CHAIN_LEN 8
 
 typedef struct {
-  char *key;
-  int value;
-  bool isUsed;
+   char *key;
+   int value;
+   bool isUsed;
 } item;
 
 typedef struct {
-  item *items;
-  int capacity;
-  int currlen;
+   item *items;
+   int capacity;
+   int currlen;
 } map_t;
 
 map_t *init_map();

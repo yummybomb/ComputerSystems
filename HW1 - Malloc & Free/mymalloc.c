@@ -30,140 +30,141 @@ bool IsFullyCleared(void *start);
 
 // BEGIN mymalloc
 void *mymalloc(size_t _Size, char *file, int line) {
-  if (_Size == 0) {
-        fprintf(stderr, "[ERROR] in file %s at line %d: cannot allocate 0 bytes\n",
-             file, line);
-    return NULL;
-  }
+   if (_Size == 0) {
+      fprintf(stderr,
+              "[ERROR] in file %s at line %d: cannot allocate 0 bytes\n", file,
+              line);
+      return NULL;
+   }
 
-  // Define variables
-  int userSize = ROUNDUP8(_Size);
-  int size = userSize + headerSize;
+   // Define variables
+   int userSize = ROUNDUP8(_Size);
+   int size = userSize + headerSize;
 
-  char *res = NULL;
-  char *memCur = heap;
-  char *memEnd = memCur + MEMSIZE * sizeof(double);
+   char *res = NULL;
+   char *memCur = heap;
+   char *memEnd = memCur + MEMSIZE * sizeof(double);
 
-  // Begin iterating over heap headers
-  while (memCur < memEnd) {
-    int chunkSize = GetChunkSize(memCur);
-    bool isFree = IsFree(memCur);
+   // Begin iterating over heap headers
+   while (memCur < memEnd) {
+      int chunkSize = GetChunkSize(memCur);
+      bool isFree = IsFree(memCur);
 
-    // Initialize first header
-    if (isFree == true && chunkSize == 0) {
-      SetChunkSize(memCur, size);
-      MarkAsAllocated(memCur);
+      // Initialize first header
+      if (isFree == true && chunkSize == 0) {
+         SetChunkSize(memCur, size);
+         MarkAsAllocated(memCur);
 
-      SetNextChunkSize(memCur, memEnd - (memCur + size));
+         SetNextChunkSize(memCur, memEnd - (memCur + size));
 
-      res = memCur + headerSize;
-      return res;
-    }
-    // Edge case, where chunk size equals requested size (accounting header)
-    if (isFree == true && chunkSize == size) {
-      MarkAsAllocated(memCur);
+         res = memCur + headerSize;
+         return res;
+      }
+      // Edge case, where chunk size equals requested size (accounting header)
+      if (isFree == true && chunkSize == size) {
+         MarkAsAllocated(memCur);
 
-      res = memCur + headerSize;
-      return res;
-    }
+         res = memCur + headerSize;
+         return res;
+      }
 
-    // Cut
-    if (isFree == true && chunkSize > size) {
-      SetChunkSize(memCur, size);
-      MarkAsAllocated(memCur);
+      // Cut
+      if (isFree == true && chunkSize > size) {
+         SetChunkSize(memCur, size);
+         MarkAsAllocated(memCur);
 
-      SetNextChunkSize(memCur, chunkSize - size);
-      MarkNextChunkFree(memCur);
+         SetNextChunkSize(memCur, chunkSize - size);
+         MarkNextChunkFree(memCur);
 
-      res = memCur + headerSize;
-      return res;
-    }
-    // Not enough space, go next
-    if (isFree == false || chunkSize < size) {
-      memCur = GetNextChunk(memCur);
-    }
-  }
-  // No memory left in the heap to malloc for requested size
-  fprintf(stderr, "[ERROR] in file %s at line %d: not enough memory\n", file,
-          line);
-  return NULL;
+         res = memCur + headerSize;
+         return res;
+      }
+      // Not enough space, go next
+      if (isFree == false || chunkSize < size) {
+         memCur = GetNextChunk(memCur);
+      }
+   }
+   // No memory left in the heap to malloc for requested size
+   fprintf(stderr, "[ERROR] in file %s at line %d: not enough memory\n", file,
+           line);
+   return NULL;
 }
 
 // BEGIN myfree
 // Reference FREE DESIGN NOTES in README for more information
 void myfree(void *_Memory, char *file, int line) {
-  // This section defines the start and end of the heap
-  char *headerStart = (char *)_Memory - headerSize;
-  char *memStart = heap;
-  char *memEnd = memStart + MEMSIZE * sizeof(double);
+   // This section defines the start and end of the heap
+   char *headerStart = (char *)_Memory - headerSize;
+   char *memStart = heap;
+   char *memEnd = memStart + MEMSIZE * sizeof(double);
 
-  // ptrInvalid is a boolean to check if:
-  // 1: The pointer passed is not freed
-  // 2: The pointer points to the start of a chunk
-  // ptrInvalid gets changed to false if any of these conditions are not met
-  bool ptrInvalid = true;
-  while (memStart < memEnd) {
-    if (memStart == headerStart) {
-      if (IsFree(headerStart)) {
-        // This indicates that the user is trying to free an already free
-        // chunk
-        fprintf(stderr,
-                "[ERROR] in file %s at line %d: Pointer is already free\n",
-                file, line);
-        return;
-      } else {
-        // This indicates that the pointer is valid
-        MarkAsFree(headerStart);
-        ptrInvalid = false;
+   // ptrInvalid is a boolean to check if:
+   // 1: The pointer passed is not freed
+   // 2: The pointer points to the start of a chunk
+   // ptrInvalid gets changed to false if any of these conditions are not met
+   bool ptrInvalid = true;
+   while (memStart < memEnd) {
+      if (memStart == headerStart) {
+         if (IsFree(headerStart)) {
+            // This indicates that the user is trying to free an already free
+            // chunk
+            fprintf(stderr,
+                    "[ERROR] in file %s at line %d: Pointer is already free\n",
+                    file, line);
+            return;
+         } else {
+            // This indicates that the pointer is valid
+            MarkAsFree(headerStart);
+            ptrInvalid = false;
+         }
       }
-    }
-    memStart = GetNextChunk(memStart);
-  }
+      memStart = GetNextChunk(memStart);
+   }
 
-  // This indicates that the pointer does not point to the start of a chunk
-  if (ptrInvalid) {
-    fprintf(stderr,
-            "[ERROR] in file %s at line %d: Pointer does not point to the "
-            "start of a chunk \n",
-            file, line);
-    return;
-  }
+   // This indicates that the pointer does not point to the start of a chunk
+   if (ptrInvalid) {
+      fprintf(stderr,
+              "[ERROR] in file %s at line %d: Pointer does not point to the "
+              "start of a chunk \n",
+              file, line);
+      return;
+   }
 
-  // This section iterates through every chunk in the heap
-  // If any a chunk and the next chunk is free, then the two chunks will be
-  // coalesced CoalesceNextChunk() is called to coalesce two adjacent chunks
-  memStart = heap;
-  while (memStart < memEnd) {
-    while (IsFree(memStart) && NextValidAndFree(memStart, memEnd)) {
-      CoalesceNextChunk(memStart);
-    }
-    memStart = GetNextChunk(memStart);
-  }
+   // This section iterates through every chunk in the heap
+   // If any a chunk and the next chunk is free, then the two chunks will be
+   // coalesced CoalesceNextChunk() is called to coalesce two adjacent chunks
+   memStart = heap;
+   while (memStart < memEnd) {
+      while (IsFree(memStart) && NextValidAndFree(memStart, memEnd)) {
+         CoalesceNextChunk(memStart);
+      }
+      memStart = GetNextChunk(memStart);
+   }
 }
 
 // START OF HELPER FUNCTIONS
 bool NextValidAndFree(char *ptr, char *memEnd) {
-  char *ptr2 = ptr + GetChunkSize(ptr);
-  if (ptr2 >= memEnd) {
-    return false;
-  } else {
-    return (IsFree(ptr2));
-  }
+   char *ptr2 = ptr + GetChunkSize(ptr);
+   if (ptr2 >= memEnd) {
+      return false;
+   } else {
+      return (IsFree(ptr2));
+   }
 }
 
 void CoalesceNextChunk(void *ptr) {
-  int size = GetChunkSize(ptr);
-  void *ptr2 = ptr + size;
-  int size2 = GetChunkSize(ptr2);
-  SetChunkSize(ptr, size + size2);
+   int size = GetChunkSize(ptr);
+   void *ptr2 = ptr + size;
+   int size2 = GetChunkSize(ptr2);
+   SetChunkSize(ptr, size + size2);
 }
 
 bool memCleared() {
-  void *start = heap;
-  if (IsUninitialized(start) || IsFullyCleared(start)) {
-    return true;
-  }
-  return false;
+   void *start = heap;
+   if (IsUninitialized(start) || IsFullyCleared(start)) {
+      return true;
+   }
+   return false;
 }
 
 void *GetHeapStart() { return heap; }
@@ -179,27 +180,26 @@ void MarkAsAllocated(void *start) { *((char *)start + 4) = 1; }
 void MarkAsFree(void *start) { *((char *)start + 4) = 0; }
 
 bool NextChunkIsUninitialized(void *start) {
-  return GetChunkSize((char *)start + GetChunkSize(start)) == 0;
+   return GetChunkSize((char *)start + GetChunkSize(start)) == 0;
 }
 
 void SetNextChunkSize(void *start, int size) {
-  SetChunkSize((char *)start + GetChunkSize(start), size);
+   SetChunkSize((char *)start + GetChunkSize(start), size);
 }
 
 void MarkNextChunkFree(void *start) {
-  MarkAsFree((char *)start + GetChunkSize(start));
+   MarkAsFree((char *)start + GetChunkSize(start));
 }
 
 void *GetNextChunk(void *start) { return (char *)start + GetChunkSize(start); }
 
 bool IsUninitialized(void *start) {
-  if (GetChunkSize(start) == 0 && IsFree(start) == true)
-    return true;
-  return false;
+   if (GetChunkSize(start) == 0 && IsFree(start) == true) return true;
+   return false;
 }
 
 bool IsFullyCleared(void *start) {
-  if (GetChunkSize(start) == headerSize * MEMSIZE && IsFree(start) == true)
-    return true;
-  return false;
+   if (GetChunkSize(start) == headerSize * MEMSIZE && IsFree(start) == true)
+      return true;
+   return false;
 }
