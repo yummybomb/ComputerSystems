@@ -4,15 +4,6 @@
 #include <string.h>
 #include "hashMap.h"
 
-
-
-typedef unsigned long long ull;
-
-int hashcode(map_t *map, const char *s);
-
-
-
-
 map_t* init_map(){
     map_t* hashmap = malloc(sizeof(map_t));
     if (hashmap == NULL){
@@ -91,8 +82,7 @@ int map_rehash(map_t *map){
     return MAP_OK;
 }
 
-
-int map_get(map_t *map, char* key){
+int map_get(map_t *map, const char* key){
     int curr = hashcode(map, key);
 
     for (int i = 0; i < CHAIN_LEN; i++){
@@ -104,10 +94,10 @@ int map_get(map_t *map, char* key){
         }
         curr = (curr + 1)%map->capacity;
     }
-    return MAP_MISSING;
+    return 0;
 }
 
-int map_set(map_t *map, char *key, int val) {
+int map_set(map_t *map, const char *key, int val) {
 
     int index = map_hash(map, key);
 
@@ -117,18 +107,29 @@ int map_set(map_t *map, char *key, int val) {
         }
         index = map_hash(map, key);
     }
+    if (map->items[index].isUsed == false){
+        map->currlen++;
+    }
 
-    map->items[index].key = key;
+    map->items[index].key = strdup(key);
     map->items[index].value = val;
     map->items[index].isUsed = true;
-    map->currlen++;
-
+    
+    if (map->items[index].key == NULL) {
+        return MAP_NOMEM;
+    }
     return MAP_OK;
 }
 
 
 
 void map_destroy(map_t* map){
+    int length = map_length(map);
+    for (int i = 0; i < length; i++){
+        if (map->items[i].isUsed){
+            free(map->items[i].key);
+        }
+    }
     free(map->items);
     free(map);
     return;
@@ -140,4 +141,16 @@ int map_length(map_t* map){
         return map->currlen;
     }
     return 0;
+}
+
+
+int map_inc(map_t *map, const char* key){
+    int value = map_get(map, key);
+    if(value <= 0){
+        map_set(map, key, 1);
+    } else{
+        value++;
+        map_set(map, key, value);
+    }
+    return value;
 }
