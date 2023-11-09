@@ -8,7 +8,6 @@
 #include "quickSort.h"
 #include "hashMap.h"
 
-
 #define FILE_NOT_FOUND_ERROR "File not found"
 #define FILE_NOT_OPENED_ERROR "File not opened yet"
 #define STARTSIZE 8
@@ -20,8 +19,6 @@ bool processFile(const char* fileName, map_t *map);
 bool processDirectory(const char* dirName);
 int isValidCharacter(char prev, char curr, char next);
 void printWords(map_t *map);
-
-
 
 void generate_strings(char *str, int index, int length) {
     if (index == length) {
@@ -52,7 +49,6 @@ void generate_stringsToCheck(char *str, int index, int length) {
     }
 }
 
-
 int main(int argc, char* argv[]){
     // Check if any arguments were supplied
     if (argc < 2) {
@@ -75,18 +71,17 @@ int main(int argc, char* argv[]){
     // generate_stringsToCheck(str2, 0, length);
     // printf("done\n");
     
-
-
-
-
-
-
     // //TESTING FOR NOW
     // for (int i = 1; i < argc; i++){
     //     processFile(argv[i]);
     // }
     map_destroy(map);
     return 0;
+}
+
+bool processDirectory(const char* dirName){
+    //TODO LATER
+    return true;
 }
 
 bool processFile(const char* fileName, map_t *map) {
@@ -101,15 +96,14 @@ bool processFile(const char* fileName, map_t *map) {
     int wordCapacity = STARTSIZE;
     int wordIndex = 0;
     
-    char prev = '\0'; 
-    char c = '\0'; 
-    char next = '\0';
+    char prev = '\0'; char c = '\0'; char next = '\0';
     while (read(fd, &next, 1) > 0){
         if(wordIndex >= wordCapacity){
             wordCapacity *= 2;
             word = realloc(word, wordCapacity);
         }
         int validResult = isValidCharacter(prev, c, next);
+        
         if(validResult == 1){
             //continue word
             word[wordIndex++] = c;
@@ -149,8 +143,6 @@ bool processFile(const char* fileName, map_t *map) {
     }
     free(word);
 
-    printMap(map);
-
     if (close(fd) < 0) { 
         fprintf(stderr, "Error on line %d : %s\n", __LINE__, FILE_NOT_OPENED_ERROR);
         return false;
@@ -170,13 +162,6 @@ int isValidCharacter(char prev, char curr, char next){
     return 0;
 }
 
-
-bool processDirectory(const char* dirName){
-    //TODO LATER
-    return true;
-
-}
-
 void printWords(map_t *map){
     int cap = map->capacity;
     int length = map_length(map);
@@ -184,11 +169,9 @@ void printWords(map_t *map){
     char* wordList[length];
     int wordCount[length];
     int curr = 0;
-
     //Copy all words in the hash map to these arrays to be sorted
     for(int i = 0; i < cap; i++){
         if (curr >= length) break;
-        
         if(map->items[i].isUsed == true){
             wordList[curr] = map->items[i].key;
             wordCount[curr] = map->items[i].value;
