@@ -3,22 +3,29 @@
 #include <assert.h>
 #include <ctype.h>
 #include <dirent.h>
+#include <errno.h>
 #include <fcntl.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/stat.h>
 
-#define FILE_NOT_FOUND_ERROR "File not found"
-#define FILE_NOT_OPENED_ERROR "File not opened yet"
+#define FILE 1
+#define DIRECTORY 2
 #define STARTSIZE 8
 
 long long global_ctr = 1;
 map_t *map;
 
+
+bool endsWithTxt(const char *filename);
 bool processFile(const char *fileName, map_t *map);
 bool processDirectory(const char *dirName);
 int isValidCharacter(char prev, char curr, char next);
 void printWords(map_t *map);
+bool processDirectory(const char *dirName, map_t *map);
+bool processFile(const char *fileName, map_t *map);
+int checkFile(const char *path);
 
 void generate_strings(char *str, int index, int length) {
     if (index == length) {
@@ -57,38 +64,50 @@ int main(int argc, char *argv[]) {
     }
     map = init_map();
     for (int i = 1; i < argc; i++) {
-        processFile(argv[i], map);
+        if (checkFile(argv[i]) == FILE){
+            processFile(argv[i], map);
+            continue;
+        }
+        processDirectory(argv[i], map);
     }
 
     printWords(map);
-    // int length = 6;
-    // char str[length+1];
-    // generate_strings(str, 0, length);
-    // printf("%d\n", map_length(map));
-
-    // global_ctr = 1;
-    // char str2[length+1];
-    // generate_stringsToCheck(str2, 0, length);
-    // printf("done\n");
-
-    // //TESTING FOR NOW
-    // for (int i = 1; i < argc; i++){
-    //     processFile(argv[i]);
-    // }
     map_destroy(map);
     return 0;
 }
 
-bool processDirectory(const char *dirName) {
-    // TODO LATER
+bool processDirectory(const char *dirName, map_t *map) {
+    struct dirent *de;
+    DIR *dir = opendir(dirName);
+    if (dir == NULL){
+        fprintf(stderr, "Error on line %d : %s\n", __LINE__, strerror(errno));
+    }
+
+    while ((de = readdir(dir)) != NULL){
+        if (strcmp(de->d_name, ".") == 0 || strcmp(de->d_name, "..") == 0)
+            continue;
+        char path[263];
+        snprintf(path, sizeof(path), "%s/%s", dirName, de->d_name);
+
+        if (checkFile(path) == FILE){
+            processFile(path, map);
+            continue;
+        }
+        processDirectory(path, map);
+    }
+
+    if (closedir(dir) < 0) {
+        fprintf(stderr, "Error on line %d : %s\n", __LINE__,
+                strerror(errno));
+        return false;
+    }
     return true;
 }
 
 bool processFile(const char *fileName, map_t *map) {
     int fd = open(fileName, O_RDONLY);
     if (fd < 0) {
-        fprintf(stderr, "Error on line %d : %s\n", __LINE__,
-                FILE_NOT_FOUND_ERROR);
+        fprintf(stderr, "Error on line %d : %s\n", __LINE__, strerror(errno));
         return false;
     }
 
@@ -148,22 +167,10 @@ bool processFile(const char *fileName, map_t *map) {
     free(word);
 
     if (close(fd) < 0) {
-        fprintf(stderr, "Error on line %d : %s\n", __LINE__,
-                FILE_NOT_OPENED_ERROR);
+        fprintf(stderr, "Error on line %d : %s\n", __LINE__, strerror(errno));
         return false;
     }
     return true;
-}
-
-// 0 is false, 1 is true, 2 only happens if the character after a ' is a letter
-int isValidCharacter(char prev, char curr, char next) {
-    if (isalpha(curr) || (curr == '\'' && isalpha(prev)) ||
-        (curr == '-' && isalpha(prev) && isalpha(next))) {
-        return 1;
-    } else if (curr == '\'' && isalpha(next)) {
-        return 2;
-    }
-    return 0;
 }
 
 void printWords(map_t *map) {
@@ -188,4 +195,35 @@ void printWords(map_t *map) {
     for (int i = 0; i < length; i++) {
         printf("%s %d\n", wordList[i], wordCount[i]);
     }
+}
+
+// 0 is false, 1 is true, 2 only happens if the character after a ' is a letter
+int isValidCharacter(char prev, char curr, char next) {
+    if (isalpha(curr) || (curr == '\'' && isalpha(prev)) ||
+        (curr == '-' && isalpha(prev) && isalpha(next))) {
+        return 1;
+    } else if (curr == '\'' && isalpha(next)) {
+        return 2;
+    }
+    return 0;
+}
+
+//return 1 if path, 2 if directory
+int checkFile(const char *path) {
+    struct stat path_stat;
+    if (stat(path, &path_stat) != 0) {
+        printf("Could not stat %s: %s\n", path, strerror(errno));
+        return -1;
+    }
+
+    if (S_ISREG(path_stat.st_mode) && endsWithTxt(path))
+        return FILE;
+    else if (S_ISDIR(path_stat.st_mode))
+        return DIRECTORY;
+    return -2;
+}
+
+bool endsWithTxt(const char *filename) {
+    size_t len = strlen(filename);
+    return len > 4 && strcmp(filename + len - 4, ".txt") == 0;
 }
