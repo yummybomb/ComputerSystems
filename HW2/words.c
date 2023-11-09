@@ -13,6 +13,7 @@
 
 bool processFile(const char* fileName);
 bool processDirectory(const char* dirName);
+
 bool isValidCharacter(char currentChar, char previousChar, char prevPreviousChar);
 
 long long global_ctr = 1;
@@ -88,27 +89,79 @@ bool processFile(const char* fileName) {
     int wordCapacity = STARTSIZE;
     int wordIndex = 0;
     
-    char c = '\0', prev_c = '\0', prev_prev_c = '\0';
+    char firstTwo[2];
+    int bytesRead = read(fd, firstTwo, 2);
+    if(bytesRead < 0){
+        //TODO: Error on read() Message 
+    }
+    else if(bytesRead == 0){
+        //TODO: Empty File Case
+    }
+    if(bytesRead == 1){
+        if(isalpha(firstTwo[0])){
+            word[wordIndex++] = firstTwo[0];
+            word[wordIndex] = '\0';
+            //TODO: Add Only the first character to hashmap
+        }
+        else{
+            //TODO: Empty File
+        }
+    }
+    else{
+        char prev = firstTwo[0]; char c = firstTwo[1]; char next = '\0';
+        if(isalpha(prev) || (prev == '\'' && isalpha(c))){
+            word[wordIndex] = prev;
+            wordIndex++;
+        }
 
-    //Loop to EOF by character
-    while (read(fd, &c, 1) > 0) {
-        if (wordIndex >= wordCapacity) {
+        while (read(fd, &next, 1) > 0){
+            if(wordIndex >= wordCapacity){
                 wordCapacity *= 2;
                 word = realloc(word, wordCapacity);
-        }
-        if (isValidCharacter(c, prev_c, prev_prev_c)) {            
-            word[wordIndex++] = c;
-        } else if (wordIndex > 0) {
-            word[wordIndex] = '\0';
-            // ADD WORD TO HASHMAPHERE
+            }
 
-            word = realloc(word, STARTSIZE);
-            wordCapacity = STARTSIZE;
-            wordIndex = 0;
+            int validResult = isValidCharacter(prev, c, next);
+            if(validResult == 1){
+                //continue word
+                word[wordIndex++] = c;
+            }
+            else if(validResult == 0){
+                //New word
+                word[wordIndex] = '\0';
+                // ADD WORD TO HASHMAPHERE
+
+                word = realloc(word, STARTSIZE);
+                wordCapacity = STARTSIZE;
+                wordIndex = 0;
+            }
+            else{
+                //For ' special case (new word, but the ' is part of the next word)
+                word[wordIndex] = '\0';
+                // ADD WORD TO HASHMAPHERE
+
+                word = realloc(word, STARTSIZE);
+                wordCapacity = STARTSIZE;
+                word[0] = next; //next should be '
+                wordIndex = 1;
+            }
+
+            //shift characters
+            prev = c;
+            c = next;
+
+
         }
-        prev_prev_c = prev_c;
-        prev_c = c;
+        //Check if the very last character is part of a word, then add word to hashmap
+        next = '\0';
+        if(isValidCharacter){
+            word[wordIndex++] = c;
+            word[wordIndex] = '\0';
+            //TODO: push to hashmap
+
+        }
+
     }
+
     free(word);
 
     if (close(fd) < 0) { 
@@ -118,14 +171,28 @@ bool processFile(const char* fileName) {
     return true;
 }
 
-//not working
-//check edge cases: '--' and '\'' by itself...
-bool isValidCharacter(char currentChar, char previousChar, char prevPreviousChar) {
-    return isalpha(currentChar) || currentChar == '\'' 
-        || (currentChar == '-' && isalpha(previousChar) && prevPreviousChar != '-');
+bool processDirectory(const char* dirName){
+    //TODO LATER
+    return false;
+}
+
+//0 is false, 1 is true, 2 only happens if the character after a ' is a letter
+int isValidCharacter(char prev, char curr, char next){
+    if(isalpha(curr)) return 1;
+    else if(curr == '\''){
+        if(isalpha(prev)) return 1;
+        else if(isalpha(next)) return 2;
+        else return 0;
+    }
+    else if(curr == '-'){
+        if(isalpha(prev) && isalpha(next)) return 1;
+        else return 0;
+    }
+    else return 0;
 }
 
 bool processDirectory(const char* dirName){
     //TODO LATER
     return false;
+
 }
