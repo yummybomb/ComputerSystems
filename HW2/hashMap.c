@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+
 map_t *init_map() {
   map_t *hashmap = malloc(sizeof(map_t));
   if (hashmap == NULL) {

@@ -1,5 +1,6 @@
 #ifndef HASHMAP_H
 #define HASHMAP_H
+#include <stdbool.h>
 
 #define MAP_NOMEM -2 // no memory
 #define MAP_FULL -1  // map is full
