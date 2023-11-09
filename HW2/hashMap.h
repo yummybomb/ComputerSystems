@@ -1,7 +1,6 @@
 #ifndef HASHMAP_H
 #define HASHMAP_H
 
-#define MAP_MISSING -3  // no element in map
 #define MAP_NOMEM -2 	// no memory 
 #define MAP_FULL -1 	// map is full
 #define MAP_OK 0 	    // good
@@ -24,9 +23,10 @@ typedef struct {
 
 
 map_t* init_map();
-int map_get(map_t *map, char* key);
-int map_set(map_t *map, char *key, int val);
+int map_get(map_t *map, const char* key);
+int map_set(map_t *map, const char *key, int val);
 void map_destroy(map_t* map);
 int map_length(map_t* map);
+int map_inc(map_t *map, const char* key);
     
 #endif
