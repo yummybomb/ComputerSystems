@@ -17,7 +17,6 @@
 long long global_ctr = 1;
 map_t *map;
 
-
 bool endsWithTxt(const char *filename);
 bool processFile(const char *fileName, map_t *map);
 bool processDirectory(const char *dirName);
@@ -64,7 +63,7 @@ int main(int argc, char *argv[]) {
     }
     map = init_map();
     for (int i = 1; i < argc; i++) {
-        if (checkFile(argv[i]) == FILE){
+        if (checkFile(argv[i]) == FILE) {
             processFile(argv[i], map);
             continue;
         }
@@ -79,17 +78,17 @@ int main(int argc, char *argv[]) {
 bool processDirectory(const char *dirName, map_t *map) {
     struct dirent *de;
     DIR *dir = opendir(dirName);
-    if (dir == NULL){
+    if (dir == NULL) {
         fprintf(stderr, "Error on line %d : %s\n", __LINE__, strerror(errno));
     }
 
-    while ((de = readdir(dir)) != NULL){
+    while ((de = readdir(dir)) != NULL) {
         if (strcmp(de->d_name, ".") == 0 || strcmp(de->d_name, "..") == 0)
             continue;
         char path[263];
         snprintf(path, sizeof(path), "%s/%s", dirName, de->d_name);
 
-        if (checkFile(path) == FILE){
+        if (checkFile(path) == FILE) {
             processFile(path, map);
             continue;
         }
@@ -97,8 +96,7 @@ bool processDirectory(const char *dirName, map_t *map) {
     }
 
     if (closedir(dir) < 0) {
-        fprintf(stderr, "Error on line %d : %s\n", __LINE__,
-                strerror(errno));
+        fprintf(stderr, "Error on line %d : %s\n", __LINE__, strerror(errno));
         return false;
     }
     return true;
@@ -208,7 +206,7 @@ int isValidCharacter(char prev, char curr, char next) {
     return 0;
 }
 
-//return 1 if path, 2 if directory
+// return 1 if path, 2 if directory
 int checkFile(const char *path) {
     struct stat path_stat;
     if (stat(path, &path_stat) != 0) {

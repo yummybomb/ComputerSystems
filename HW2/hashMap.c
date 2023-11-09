@@ -146,18 +146,18 @@ int map_inc(map_t *map, const char *key) {
     int value = map_get(map, key);
     if (value <= 0) {
         map_set(map, key, 1);
-    } else{
+    } else {
         map_set(map, key, ++value);
     }
     return value;
 }
 
-//This prints the map (UNSORTED: Only used for testing)
-void printMap(map_t *map){
+// This prints the map (UNSORTED: Only used for testing)
+void printMap(map_t *map) {
     int len = map->capacity;
-    item* itemList = map->items;
-    for(int i = 0; i < len; i++){
-        if(itemList[i].value <= 0) continue;
+    item *itemList = map->items;
+    for (int i = 0; i < len; i++) {
+        if (itemList[i].value <= 0) continue;
         printf("%s %d\n", itemList[i].key, itemList[i].value);
     }
 }

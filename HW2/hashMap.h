@@ -25,9 +25,9 @@ typedef struct {
 map_t *init_map();
 int map_get(map_t *map, const char *key);
 int map_set(map_t *map, const char *key, int val);
-void map_destroy(map_t* map);
-int map_length(map_t* map);
-int map_inc(map_t *map, const char* key);
+void map_destroy(map_t *map);
+int map_length(map_t *map);
+int map_inc(map_t *map, const char *key);
 void printMap(map_t *map);
-    
+
 #endif
