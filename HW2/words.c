@@ -54,7 +54,11 @@ void generate_stringsToCheck(char *str, int index, int length) {
 
 
 int main(int argc, char* argv[]){
-    
+    // Check if any arguments were supplied
+    if (argc < 2) {
+        printf("No directories or files specified.\n");
+        return 1;
+    }
     map = init_map();
     for(int i = 1; i < argc; i++){
         processFile(argv[i], map);
@@ -75,16 +79,13 @@ int main(int argc, char* argv[]){
 
 
 
-    // Check if any arguments were supplied
-    // if (argc < 2) {
-    //     printf("No directories or files specified.\n");
-    //     return 1;
-    // }
+
 
     // //TESTING FOR NOW
     // for (int i = 1; i < argc; i++){
     //     processFile(argv[i]);
     // }
+    map_destroy(map);
     return 0;
 }
 
@@ -97,87 +98,55 @@ bool processFile(const char* fileName, map_t *map) {
 
     //Initialize buffer
     char* word = calloc(STARTSIZE, sizeof(char));
-    
     int wordCapacity = STARTSIZE;
     int wordIndex = 0;
     
-    char firstTwo[2];
-    int bytesRead = read(fd, firstTwo, 2);
-    if(bytesRead < 0){
-        //TODO: Error on read() Message 
-    }
-    else if(bytesRead == 0){
-        //TODO: Empty File Case
-    }
-    if(bytesRead == 1){
-        if(isalpha(firstTwo[0])){
-            word[wordIndex++] = firstTwo[0];
-            word[wordIndex] = '\0';
-            //Add Only the first character to hashmap
-            map_inc(map, word);
+    char prev = '\0'; 
+    char c = '\0'; 
+    char next = '\0';
+    while (read(fd, &next, 1) > 0){
+        if(wordIndex >= wordCapacity){
+            wordCapacity *= 2;
+            word = realloc(word, wordCapacity);
         }
-        else{
-            //TODO: Empty File
-        }
-    }
-    else{
-        char prev = firstTwo[0]; char c = firstTwo[1]; char next = '\0';
-        if(isalpha(prev) || (prev == '\'' && isalpha(c))){
-            word[wordIndex] = prev;
-            wordIndex++;
-        }
-
-        while (read(fd, &next, 1) > 0){
-            if(wordIndex >= wordCapacity){
-                wordCapacity *= 2;
-                word = realloc(word, wordCapacity);
-            }
-
-            int validResult = isValidCharacter(prev, c, next);
-            if(validResult == 1){
-                //continue word
-                word[wordIndex++] = c;
-            }
-            else if(validResult == 0 && wordIndex > 0){
-                //New word
-                word[wordIndex] = '\0';
-                // ADD WORD TO HASHMAPHERE
-                map_inc(map, word);
-                free(word);
-                word = calloc(STARTSIZE, sizeof(char));
-                wordCapacity = STARTSIZE;
-                wordIndex = 0;
-            }
-            else if(validResult == 2){
-                //For ' special case (new word, but the ' is part of the next word)
-                if(wordIndex > 0){
-                    word[wordIndex] = '\0';
-                    // ADD WORD TO HASHMAPHERE
-                    map_inc(map, word);
-                    free(word); 
-                    word = calloc(STARTSIZE, 1);
-                    wordCapacity = STARTSIZE;
-                }
-                word[0] = '\'';
-                wordIndex = 1;
-            }
-
-            //shift characters
-            prev = c;
-            c = next;
-
-
-        }
-        //Check if the very last character is part of a word, then add word to hashmap
-        next = '\0';
-        if(isValidCharacter(prev, c, next)){
+        int validResult = isValidCharacter(prev, c, next);
+        if(validResult == 1){
+            //continue word
             word[wordIndex++] = c;
+        }else if(validResult == 0 && wordIndex > 0){
+            //New word
             word[wordIndex] = '\0';
-            //push to hashmap
             map_inc(map, word);
+            free(word);
+            word = calloc(STARTSIZE, sizeof(char));
+            wordCapacity = STARTSIZE;
+            wordIndex = 0;
+        }else if(validResult == 2){
+            //For ' special case (new word, but the ' is part of the next word)
+            if(wordIndex > 0){
+                word[wordIndex] = '\0';
+                map_inc(map, word);
+                free(word); 
+                
+                word = calloc(STARTSIZE, 1);
+                wordCapacity = STARTSIZE;
+            }
+            word[0] = '\'';
+            wordIndex = 1;
         }
+        //shift characters
+        prev = c;
+        c = next;
     }
-    map_inc(map,word);
+    //Check if the very last character is part of a word, then add word to hashmap
+    next = '\0';
+    if(isValidCharacter(prev, c, next)){
+        word[wordIndex++] = c;
+        word[wordIndex] = '\0';
+        map_inc(map, word);
+    }else{
+        map_inc(map, word);
+    }
     free(word);
 
     if (close(fd) < 0) { 
@@ -187,24 +156,22 @@ bool processFile(const char* fileName, map_t *map) {
     return true;
 }
 
+
 //0 is false, 1 is true, 2 only happens if the character after a ' is a letter
 int isValidCharacter(char prev, char curr, char next){
-    if(isalpha(curr)) return 1;
-    else if(curr == '\''){
-        if(isalpha(prev)) return 1;
-        else if(isalpha(next)) return 2;
-        else return 0;
+    if(isalpha(curr) || (curr == '\'' && isalpha(prev)) || (curr == '-' && isalpha(prev) && isalpha(next))) {
+        return 1;
     }
-    else if(curr == '-'){
-        if(isalpha(prev) && isalpha(next)) return 1;
-        else return 0;
+    else if(curr == '\'' && isalpha(next)) {    
+        return 2;
     }
-    else return 0;
+    return 0;
 }
+
 
 bool processDirectory(const char* dirName){
     //TODO LATER
-    return false;
+    return true;
 
 }
 
@@ -221,33 +188,16 @@ void printWords(map_t *map){
         if (curr >= length) break;
         
         if(map->items[i].isUsed == true){
-            char* key = map->items[i].key;
-            int value = map->items[i].value;
-            wordList[curr] = key;
-            wordCount[curr] = value;
+            wordList[curr] = map->items[i].key;
+            wordCount[curr] = map->items[i].value;
             curr++;
         }
     }
 
-//     //Bubble sort implementation
-// for(int i = 0; i < length-1; i++){
-//     for(int j = 0; j < length-i-1; j++){ // Subtract 1 here
-//         if(wordCount[j] < wordCount[j+1]){
-//             int temp = wordCount[j];
-//             wordCount[j] = wordCount[j+1];
-//             wordCount[j+1] = temp;
+    quickSort(wordCount, wordList, 0, length - 1, DESCENDING);
+    printf("%d\n", length);
 
-//             char* tempString = wordList[j];
-//             wordList[j] = wordList[j+1];
-//             wordList[j+1] = tempString;
-//         }
-//     }
-// }
-
-quickSort(wordCount, wordList, 0, length - 1, DESCENDING); // For descending order
-
-
-for(int i = 0; i < length; i++){
-    printf("%s %d\n", wordList[i], wordCount[i]);
-}
+    for(int i = 0; i < length; i++){
+        printf("%s %d\n", wordList[i], wordCount[i]);
+    }
 }

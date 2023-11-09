@@ -7,9 +7,6 @@ CFLAGS = -Wall -g
 # define the C source files
 SRCS = hashMap.c words.c quickSort.c
 
-# define the C object files 
-OBJS = $(SRCS:.c=.o)
-
 # define the executable file 
 MAIN = words
 
@@ -25,17 +22,8 @@ endif
 
 all: $(MAIN)
 
-$(MAIN): $(OBJS)
-	$(CC) $(CFLAGS) -o $@ $^
-
-hashMap.o: hashMap.c hashMap.h
-	$(CC) $(CFLAGS) -c hashMap.c
-
-quickSort.o: quickSort.c quickSort.h
-	$(CC) $(CFLAGS) -c quickSort.c
-
-words.o: words.c
-	$(CC) $(CFLAGS) -c words.c
+$(MAIN): 
+	$(CC) $(CFLAGS) -o $@ $(SRCS)
 
 clean:
-	$(RM) $(call FixPath, *.o *~ *.exe $(MAIN))
+	$(RM) $(call FixPath, *~ *.exe $(MAIN))
