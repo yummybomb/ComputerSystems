@@ -11,15 +11,15 @@
 #define CHAIN_LEN 8
 
 typedef struct {
-   char *key;
-   int value;
-   bool isUsed;
+    char *key;
+    int value;
+    bool isUsed;
 } item;
 
 typedef struct {
-   item *items;
-   int capacity;
-   int currlen;
+    item *items;
+    int capacity;
+    int currlen;
 } map_t;
 
 map_t *init_map();
