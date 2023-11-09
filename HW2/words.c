@@ -13,8 +13,7 @@
 
 bool processFile(const char* fileName);
 bool processDirectory(const char* dirName);
-
-bool isValidCharacter(char currentChar, char previousChar, char prevPreviousChar);
+int isValidCharacter(char prev, char curr, char next);
 
 long long global_ctr = 1;
 map_t* map;
@@ -50,7 +49,7 @@ void generate_stringsToCheck(char *str, int index, int length) {
 
 int main(int argc, char* argv[]){
     map = init_map();
-    int length = 7;
+    int length = 6;
     char str[length+1];
     generate_strings(str, 0, length);
     printf("%d\n", map_length(map));
@@ -153,7 +152,7 @@ bool processFile(const char* fileName) {
         }
         //Check if the very last character is part of a word, then add word to hashmap
         next = '\0';
-        if(isValidCharacter){
+        if(isValidCharacter(prev, c, next)){
             word[wordIndex++] = c;
             word[wordIndex] = '\0';
             //TODO: push to hashmap
@@ -169,11 +168,6 @@ bool processFile(const char* fileName) {
         return false;
     }
     return true;
-}
-
-bool processDirectory(const char* dirName){
-    //TODO LATER
-    return false;
 }
 
 //0 is false, 1 is true, 2 only happens if the character after a ' is a letter
