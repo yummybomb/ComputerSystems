@@ -69,7 +69,6 @@ int main(int argc, char *argv[]) {
     }
 
     printWords(map);
-
     map_destroy(map);
     return 0;
 }
@@ -91,12 +90,11 @@ bool processDirectory(const char *dirName, map_t *map) {
 
         if (checkFile(path) == FILE){
             processFile(path, map);
+            continue;
         }
-        if (checkFile(path) == DIRECTORY){
-            processDirectory(path, map);
-        }
+        processDirectory(path, map);
     }
-    
+
     if (closedir(dir) < 0) {
         fprintf(stderr, "Error on line %d : %s\n", __LINE__,
                 strerror(errno));

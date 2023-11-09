@@ -42,7 +42,7 @@ int map_hash(map_t *map, const char *key){
             return curr;
         }
         if(map->items[curr].isUsed == true && (strcmp(map->items[curr].key,key)==0)) {
-			return curr;
+			      return curr;
         }
 
         //go next
@@ -149,8 +149,7 @@ int map_inc(map_t *map, const char* key){
     if(value <= 0){
         map_set(map, key, 1);
     } else{
-        value++;
-        map_set(map, key, value);
+        map_set(map, key, ++value);
     }
     return value;
 }
@@ -160,8 +159,7 @@ void printMap(map_t *map){
     int len = map->capacity;
     item* itemList = map->items;
     for(int i = 0; i < len; i++){
-        if(itemList[i].value > 0){
-            printf("%s %d\n", itemList[i].key, itemList[i].value);
-        }
+        if(itemList[i].value <= 0) continue;
+        printf("%s %d\n", itemList[i].key, itemList[i].value);
     }
 }
