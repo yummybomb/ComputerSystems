@@ -5,7 +5,9 @@
 #include <stdbool.h>
 #include <fcntl.h> 
 #include <ctype.h>
+#include "quickSort.h"
 #include "hashMap.h"
+
 
 #define FILE_NOT_FOUND_ERROR "File not found"
 #define FILE_NOT_OPENED_ERROR "File not opened yet"
@@ -57,6 +59,7 @@ int main(int argc, char* argv[]){
     for(int i = 1; i < argc; i++){
         processFile(argv[i], map);
     }
+
     printWords(map);
     // int length = 6;
     // char str[length+1];
@@ -216,7 +219,7 @@ void printWords(map_t *map){
     //Copy all words in the hash map to these arrays to be sorted
     for(int i = 0; i < cap; i++){
         if (curr >= length) break;
-
+        
         if(map->items[i].isUsed == true){
             char* key = map->items[i].key;
             int value = map->items[i].value;
@@ -226,23 +229,25 @@ void printWords(map_t *map){
         }
     }
 
-    //Bubble sort implementation
-    for(int i = 0; i < length-1; i++){
-        for(int j = 0; j < length-i; j++){
-            if(wordCount[j] > wordCount[j+1]){
-                int temp = wordCount[j];
-                wordCount[j] = wordCount[j+1];
-                wordCount[j+1] = temp;
+//     //Bubble sort implementation
+// for(int i = 0; i < length-1; i++){
+//     for(int j = 0; j < length-i-1; j++){ // Subtract 1 here
+//         if(wordCount[j] < wordCount[j+1]){
+//             int temp = wordCount[j];
+//             wordCount[j] = wordCount[j+1];
+//             wordCount[j+1] = temp;
 
-                char* tempString = wordList[j];
-                wordList[j] = wordList[j+1];
-                wordList[j+1] = tempString;
-            }
-        }
-    }
+//             char* tempString = wordList[j];
+//             wordList[j] = wordList[j+1];
+//             wordList[j+1] = tempString;
+//         }
+//     }
+// }
 
-    //Print out all the words
-    // for(int i = 0; i < length; i++){
-    //     printf("%s %d\n", wordList[i], wordCount[i]);
-    // }
+quickSort(wordCount, wordList, 0, length - 1, DESCENDING); // For descending order
+
+
+for(int i = 0; i < length; i++){
+    printf("%s %d\n", wordList[i], wordCount[i]);
+}
 }

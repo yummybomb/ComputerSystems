@@ -5,7 +5,7 @@ CC = gcc
 CFLAGS = -Wall -g
 
 # define the C source files
-SRCS = hashMap.c words.c
+SRCS = hashMap.c words.c quickSort.c
 
 # define the C object files 
 OBJS = $(SRCS:.c=.o)
@@ -30,6 +30,9 @@ $(MAIN): $(OBJS)
 
 hashMap.o: hashMap.c hashMap.h
 	$(CC) $(CFLAGS) -c hashMap.c
+
+quickSort.o: quickSort.c quickSort.h
+	$(CC) $(CFLAGS) -c quickSort.c
 
 words.o: words.c
 	$(CC) $(CFLAGS) -c words.c
