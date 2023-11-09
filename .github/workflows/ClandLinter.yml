@@ -1,12 +1,15 @@
 name: Lint
 
 on:
+  # Trigger the workflow on push or pull request,
+  # but only for the main branch
   push:
     branches:
       - main
   pull_request:
     branches:
       - main
+
 jobs:
   run-linters:
     name: Run linters
@@ -23,7 +26,6 @@ jobs:
         uses: wearerequired/lint-action@v2
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          auto_fix: true
+          auto_fix: true  
           clang_format: true
-          
-          
+          clang_format_auto_fix: true
