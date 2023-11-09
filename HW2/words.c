@@ -13,54 +13,21 @@
 #define FILE 1
 #define DIRECTORY 2
 #define STARTSIZE 8
-
-long long global_ctr = 1;
 map_t *map;
 
-bool endsWithTxt(const char *filename);
-bool processFile(const char *fileName, map_t *map);
-bool processDirectory(const char *dirName);
-int isValidCharacter(char prev, char curr, char next);
-void printWords(map_t *map);
-bool processDirectory(const char *dirName, map_t *map);
-bool processFile(const char *fileName, map_t *map);
 int checkFile(const char *path);
-
-void generate_strings(char *str, int index, int length) {
-    if (index == length) {
-        str[index] = '\0';
-        map_set(map, str, global_ctr);
-        assert(map_get(map, str) == global_ctr);
-        global_ctr++;
-        return;
-    }
-
-    for (char c = 'a'; c <= 'z'; c++) {
-        str[index] = c;
-        generate_strings(str, index + 1, length);
-    }
-}
-
-void generate_stringsToCheck(char *str, int index, int length) {
-    if (index == length) {
-        str[index] = '\0';
-        assert(map_get(map, str) == global_ctr);
-        global_ctr++;
-        return;
-    }
-
-    for (char c = 'a'; c <= 'z'; c++) {
-        str[index] = c;
-        generate_strings(str, index + 1, length);
-    }
-}
+bool endsWithTxt(const char *filename);
+int isValidCharacter(char prev, char curr, char next);
+bool processFile(const char *fileName, map_t *map);
+bool processDirectory(const char *dirName, map_t *map);
+void printWords(map_t *map);
 
 int main(int argc, char *argv[]) {
-    // Check if any arguments were supplied
     if (argc < 2) {
         printf("No directories or files specified.\n");
         return 1;
     }
+    
     map = init_map();
     for (int i = 1; i < argc; i++) {
         if (checkFile(argv[i]) == FILE) {
@@ -225,3 +192,33 @@ bool endsWithTxt(const char *filename) {
     size_t len = strlen(filename);
     return len > 4 && strcmp(filename + len - 4, ".txt") == 0;
 }
+
+// ll ctr = 0;
+// void generate_strings(char *str, int index, int length) {
+//     if (index == length) {
+//         str[index] = '\0';
+//         map_set(map, str, ctr);
+//         assert(map_get(map, str) == ctr);
+//         ctr++;
+//         return;
+//     }
+
+//     for (char c = 'a'; c <= 'z'; c++) {
+//         str[index] = c;
+//         generate_strings(str, index + 1, length);
+//     }
+// }
+
+// void generate_stringsToCheck(char *str, int index, int length) {
+//     if (index == length) {
+//         str[index] = '\0';
+//         assert(map_get(map, str) == ctr);
+//         ctr++;
+//         return;
+//     }
+
+//     for (char c = 'a'; c <= 'z'; c++) {
+//         str[index] = c;
+//         generate_strings(str, index + 1, length);
+//     }
+// }
