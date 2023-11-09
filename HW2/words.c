@@ -133,7 +133,7 @@ bool processFile(const char* fileName, map_t *map) {
                 //continue word
                 word[wordIndex++] = c;
             }
-            else if(validResult == 0){
+            else if(validResult == 0 && wordIndex > 0){
                 //New word
                 word[wordIndex] = '\0';
                 // ADD WORD TO HASHMAPHERE
@@ -143,15 +143,17 @@ bool processFile(const char* fileName, map_t *map) {
                 wordCapacity = STARTSIZE;
                 wordIndex = 0;
             }
-            else{
+            else if(validResult == 2){
                 //For ' special case (new word, but the ' is part of the next word)
-                word[wordIndex] = '\0';
-                // ADD WORD TO HASHMAPHERE
-                map_inc(map, word);
-                free(word); 
-                word = calloc(STARTSIZE, 1);
-                wordCapacity = STARTSIZE;
-                word[0] = next; //next should be '
+                if(wordIndex > 0){
+                    word[wordIndex] = '\0';
+                    // ADD WORD TO HASHMAPHERE
+                    map_inc(map, word);
+                    free(word); 
+                    word = calloc(STARTSIZE, 1);
+                    wordCapacity = STARTSIZE;
+                }
+                word[0] = '\'';
                 wordIndex = 1;
             }
 
