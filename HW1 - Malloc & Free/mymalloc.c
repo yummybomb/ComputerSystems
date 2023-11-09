@@ -31,8 +31,8 @@ bool IsFullyCleared(void *start);
 // BEGIN mymalloc
 void *mymalloc(size_t _Size, char *file, int line) {
   if (_Size == 0) {
-    fprintf(stderr, "[ERROR] in file %s at line %d: cannot allocate 0 bytes\n",
-            file, line);
+        fprintf(stderr, "[ERROR] in file %s at line %d: cannot allocate 0 bytes\n",
+             file, line);
     return NULL;
   }
 
