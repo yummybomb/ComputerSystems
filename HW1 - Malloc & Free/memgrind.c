@@ -1,8 +1,8 @@
-#include "mymalloc.h"
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
+#include "mymalloc.h"
 
 // FORWARD DECLARATIONS
 double performanceTest(int testNum, int iterations);

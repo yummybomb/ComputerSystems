@@ -1,6 +1,6 @@
-#include "mymalloc.h"
 #include <stdbool.h>
 #include <stdio.h>
+#include "mymalloc.h"
 
 // Define heap, total size, and start ptr
 #define MEMSIZE 512
