@@ -4,15 +4,6 @@
 #include <string.h>
 #include "hashMap.h"
 
-
-
-typedef unsigned long long ull;
-
-int hashcode(map_t *map, const char *s);
-
-
-
-
 map_t* init_map(){
     map_t* hashmap = malloc(sizeof(map_t));
     if (hashmap == NULL){
@@ -91,7 +82,6 @@ int map_rehash(map_t *map){
     return MAP_OK;
 }
 
-
 int map_get(map_t *map, const char* key){
     int curr = hashcode(map, key);
 
@@ -117,11 +107,14 @@ int map_set(map_t *map, const char *key, int val) {
         }
         index = map_hash(map, key);
     }
+    if (map->items[index].isUsed == false){
+        map->currlen++;
+    }
 
     map->items[index].key = strdup(key);
     map->items[index].value = val;
     map->items[index].isUsed = true;
-    map->currlen++;
+    
     if (map->items[index].key == NULL) {
         return MAP_NOMEM;
     }
