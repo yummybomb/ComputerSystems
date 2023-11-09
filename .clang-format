@@ -1,5 +1,5 @@
 ---
 BasedOnStyle: Google
 SortIncludes: false
-IndentWidth: 3
-TabWidth: 3
+IndentWidth: 4
+TabWidth: 4
