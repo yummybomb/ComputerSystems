@@ -1,0 +1,21 @@
+{
+    "files.associations": {
+        "ctype.h": "c",
+        "map": "c",
+        "format": "c",
+        "array": "c",
+        "*.tcc": "c",
+        "memory": "c",
+        "future": "c",
+        "istream": "c",
+        "functional": "c",
+        "tuple": "c",
+        "utility": "c",
+        "variant": "c",
+        "cstdlib": "c",
+        "stdio.h": "c",
+        "stdbool.h": "c",
+        "stdlib.h": "c",
+        "hashmap.h": "c"
+    }
+}
