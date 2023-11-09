@@ -197,7 +197,6 @@ void printWords(map_t *map){
     }
 
     quickSort(wordCount, wordList, 0, length - 1, DESCENDING);
-    printf("%d\n", length);
 
     for(int i = 0; i < length; i++){
         printf("%s %d\n", wordList[i], wordCount[i]);
