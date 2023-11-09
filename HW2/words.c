@@ -27,7 +27,7 @@ int main(int argc, char *argv[]) {
         printf("No directories or files specified.\n");
         return 1;
     }
-    
+
     map = init_map();
     for (int i = 1; i < argc; i++) {
         if (checkFile(argv[i]) == FILE) {
