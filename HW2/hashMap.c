@@ -162,7 +162,7 @@ int map_inc(map_t *map, const char* key){
     return value;
 }
 
-//This prints UNSORTED
+//This prints the map (UNSORTED: Only used for testing)
 void printMap(map_t *map){
     int len = map->capacity;
     item* itemList = map->items;

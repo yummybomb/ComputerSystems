@@ -176,8 +176,6 @@ bool processFile(const char* fileName, map_t *map) {
     map_inc(map,word);
     free(word);
 
-    printMap(map);
-
     if (close(fd) < 0) { 
         fprintf(stderr, "Error on line %d : %s\n", __LINE__, FILE_NOT_OPENED_ERROR);
         return false;
@@ -241,9 +239,23 @@ void printWords(map_t *map){
             }
         }
     }
+    
+    //TODO: Now sort same valued items alphabetically
+    // for(int i = 0; i < length; ++i){
+    //     for(int j = i + 1; j < length; ++j){
+    //         if(strcmp(wordList[i], wordList[j]) > 0 && wordCount[i] == wordCount[j]){
+    //             char* temp;
+    //             temp = strcpy(temp, wordList[i]);
+    //             strcpy(wordList[i], wordList[j]);
+    //             strcpy(wordList[j], temp);
+    //         }
+    //     }
+    // }
 
     //Print out all the words
-    // for(int i = 0; i < length; i++){
-    //     printf("%s %d\n", wordList[i], wordCount[i]);
-    // }
+     for(int i = length-1; i > 0; i--){
+        if(wordCount[i] > 0){
+            printf("%s %d\n", wordList[i], wordCount[i]);
+        }
+     }
 }
