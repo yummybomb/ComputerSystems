@@ -104,7 +104,7 @@ int map_get(map_t *map, char* key){
         }
         curr = (curr + 1)%map->capacity;
     }
-    return MAP_MISSING;
+    return 0;
 }
 
 int map_set(map_t *map, char *key, int val) {
@@ -140,4 +140,16 @@ int map_length(map_t* map){
         return map->currlen;
     }
     return 0;
+}
+
+
+int map_inc(map_t *map, char* key){
+    int value = map_get(map, key);
+    if(value <= 0){
+        map_set(map, key, 1);
+    } else{
+        value++;
+        map_set(map, key, value);
+    }
+    return value;
 }

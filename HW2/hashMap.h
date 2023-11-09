@@ -28,5 +28,6 @@ int map_get(map_t *map, char* key);
 int map_set(map_t *map, char *key, int val);
 void map_destroy(map_t* map);
 int map_length(map_t* map);
+int map_inc(map_t *map, char* key);
     
 #endif
