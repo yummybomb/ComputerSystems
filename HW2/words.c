@@ -17,7 +17,10 @@
 long long global_ctr = 1;
 map_t *map;
 
+
 bool endsWithTxt(const char *filename);
+bool processFile(const char *fileName, map_t *map);
+bool processDirectory(const char *dirName);
 int isValidCharacter(char prev, char curr, char next);
 void printWords(map_t *map);
 bool processDirectory(const char *dirName, map_t *map);
@@ -73,8 +76,6 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 
-
-
 bool processDirectory(const char *dirName, map_t *map) {
     struct dirent *de;
     DIR *dir = opendir(dirName);
@@ -106,8 +107,7 @@ bool processDirectory(const char *dirName, map_t *map) {
 bool processFile(const char *fileName, map_t *map) {
     int fd = open(fileName, O_RDONLY);
     if (fd < 0) {
-        fprintf(stderr, "Error on line %d : %s\n", __LINE__,
-                strerror(errno));
+        fprintf(stderr, "Error on line %d : %s\n", __LINE__, strerror(errno));
         return false;
     }
 
@@ -167,8 +167,7 @@ bool processFile(const char *fileName, map_t *map) {
     free(word);
 
     if (close(fd) < 0) {
-        fprintf(stderr, "Error on line %d : %s\n", __LINE__,
-                strerror(errno));
+        fprintf(stderr, "Error on line %d : %s\n", __LINE__, strerror(errno));
         return false;
     }
     return true;

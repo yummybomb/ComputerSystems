@@ -1,25 +1,27 @@
+#include "quickSort.h"
 #include <stdbool.h>
 #include <string.h>
-#include "quickSort.h"
 
-void swap_int(int* a, int* b) {
+void swap_int(int *a, int *b) {
     int t = *a;
     *a = *b;
     *b = t;
 }
 
-void swap_str(char** a, char** b) {
-    char* t = *a;
+void swap_str(char **a, char **b) {
+    char *t = *a;
     *a = *b;
     *b = t;
 }
 
-int partition (int arr[], char* wordList[], int low, int high, bool isAscending) {
+int partition(int arr[], char *wordList[], int low, int high,
+              bool isAscending) {
     int pivot = arr[high];
     int i = (low - 1);
 
     for (int j = low; j <= high - 1; j++) {
-        if ((isAscending && arr[j] < pivot) || (!isAscending && arr[j] > pivot)) {
+        if ((isAscending && arr[j] < pivot) ||
+            (!isAscending && arr[j] > pivot)) {
             i++;
             swap_int(&arr[i], &arr[j]);
             swap_str(&wordList[i], &wordList[j]);
@@ -36,7 +38,8 @@ int partition (int arr[], char* wordList[], int low, int high, bool isAscending)
     return (i + 1);
 }
 
-void quickSort(int arr[], char* wordList[], int low, int high, int isAscending) {
+void quickSort(int arr[], char *wordList[], int low, int high,
+               int isAscending) {
     if (low < high) {
         int pi = partition(arr, wordList, low, high, isAscending);
 
