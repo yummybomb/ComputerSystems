@@ -8,6 +8,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/stat.h>
 
 #define FILE 1
@@ -167,7 +168,8 @@ int isValidCharacter(char prev, char curr, char next) {
     if (isalpha(curr) || (curr == '\'' && isalpha(prev)) ||
         (curr == '-' && isalpha(prev) && isalpha(next))) {
         return 1;
-    } else if (curr == '\'' && isalpha(next)) {
+    }
+    if (curr == '\'' && isalpha(next)) {
         return 2;
     }
     return 0;
@@ -192,33 +194,3 @@ bool endsWithTxt(const char *filename) {
     size_t len = strlen(filename);
     return len > 4 && strcmp(filename + len - 4, ".txt") == 0;
 }
-
-// ll ctr = 0;
-// void generate_strings(char *str, int index, int length) {
-//     if (index == length) {
-//         str[index] = '\0';
-//         map_set(map, str, ctr);
-//         assert(map_get(map, str) == ctr);
-//         ctr++;
-//         return;
-//     }
-
-//     for (char c = 'a'; c <= 'z'; c++) {
-//         str[index] = c;
-//         generate_strings(str, index + 1, length);
-//     }
-// }
-
-// void generate_stringsToCheck(char *str, int index, int length) {
-//     if (index == length) {
-//         str[index] = '\0';
-//         assert(map_get(map, str) == ctr);
-//         ctr++;
-//         return;
-//     }
-
-//     for (char c = 'a'; c <= 'z'; c++) {
-//         str[index] = c;
-//         generate_strings(str, index + 1, length);
-//     }
-// }
