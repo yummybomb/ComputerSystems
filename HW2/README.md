@@ -46,3 +46,9 @@ For sorting and printing the contents of the hash map, two arrays are created: o
 First, we sort by number. We sort the words with the same frequencies together in order. Every time a change is made, both arrays are changed. After this is done, the words with the same frequency are sorted alphabetically.
 
 The program prints each word and its frequency in different lines when the sorting is finished.
+
+TESTING:
+
+To test the file, create a text file or directory containing text files and other directories, and fill the text files with words and content. Then, add the files/directories as arguments when running words.c (make sure to make before doing ./words (arguments)).
+
+Additionally, the function printMap(map) is provided in the hash file to print the contents of the map. NOTE: The contents are NOT sorted. TO use this function, do printMap(map) anywhere in words.c.
