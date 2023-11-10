@@ -35,4 +35,14 @@ The function processDirectory is a recursive function used to traverse through a
 
 HASH MAP:
 
+The hash map is used to store words. Although its worst case time is the same as keeping track of an array of words, the overall average time for storing and accessing items from the hashmap is better, hence, we used a hashmap implementation.
+
+The hash map has 2 major functions: map_get and map_set. The map uses key-value pairs. The keys are the literal words, while the values are how many times the words have been encountered.
+
 QUICKSORT IMPLEMENTATION FOR SORTING WORDS:
+
+For sorting and printing the contents of the hash map, two arrays are created: one for the word, another for the number of times the word appeared.
+
+First, we sort by number. We sort the words with the same frequencies together in order. Every time a change is made, both arrays are changed. After this is done, the words with the same frequency are sorted alphabetically.
+
+The program prints each word and its frequency in different lines when the sorting is finished.
