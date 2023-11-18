@@ -16,16 +16,16 @@ bool is_empty_or_whitespace(const char* str);
 void process_line(const char* line);
 void handle_error(const char* msg);
 
-int main(int argc, char* argv[]){
-    if (argc > 2) { 
+int main(int argc, char* argv[]) {
+    if (argc > 2) {
         fprintf(stderr, "Error: mysh only takes 0 or 1 arguments\n");
         return 1;
-    } 
-    if (argc == 2) { // Batch mode - 1 argument
+    }
+    if (argc == 2) {  // Batch mode - 1 argument
         batch_mode(argv[1]);
-    } 
-    if (argc == 1) { // Interactive mode - 0 args 
-        interactive_mode(); 
+    }
+    if (argc == 1) {  // Interactive mode - 0 args
+        interactive_mode();
     }
     return 0;
 }
@@ -45,11 +45,9 @@ int batch_mode(char* fileName) {
     return 0;
 }
 
-void interactive_mode(void) {
-    return;
-}
+void interactive_mode(void) { return; }
 
-//Helper Funcs
+// Helper Funcs
 void read_file(FILE* file) {
     // Allocate initial buffer
     char* line = malloc(INITIAL_BUFFER_SIZE);
@@ -96,7 +94,7 @@ void process_line(const char* line) {
     if (is_empty_or_whitespace(line)) {
         return;
     }
-    //WIP Process Line Here
+    // WIP Process Line Here
     printf("%s", line);
 }
 
