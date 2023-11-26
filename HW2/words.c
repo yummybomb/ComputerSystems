@@ -128,9 +128,8 @@ bool processFile(const char *fileName, map_t *map) {
         word[wordIndex++] = c;
         word[wordIndex] = '\0';
         map_inc(map, word);
-    } 
-    else if(wordIndex > 0){
-         map_inc(map, word);
+    } else if (wordIndex > 0) {
+        map_inc(map, word);
     }
     free(word);
 
