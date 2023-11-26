@@ -119,15 +119,16 @@ bool processFile(const char *fileName, map_t *map) {
         prev = c;
         c = next;
     }
-    // Check if the very last character is part of a word, then add word to
+    // Check if the very last character is part oSf a word, then add word to
     // hashmap
     next = '\0';
     if (isValidCharacter(prev, c, next)) {
         word[wordIndex++] = c;
         word[wordIndex] = '\0';
         map_inc(map, word);
-    } else {
-        map_inc(map, word);
+    } 
+    else if(wordIndex > 0){
+         map_inc(map, word);
     }
     free(word);
 
