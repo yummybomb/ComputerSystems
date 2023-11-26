@@ -54,7 +54,6 @@ void *mymalloc(size_t _Size, char *file, int line) {
         if (isFree == true && chunkSize == 0) {
             SetChunkSize(memCur, size);
             MarkAsAllocated(memCur);
-
             SetNextChunkSize(memCur, memEnd - (memCur + size));
 
             res = memCur + headerSize;
