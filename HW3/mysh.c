@@ -15,6 +15,11 @@ void read_file(FILE* file);
 bool is_empty_or_whitespace(const char* str);
 void process_line(const char* line);
 void handle_error(const char* msg);
+//Built-in commands
+void cd(const char* path);
+int pwd(void);
+void which(const char* progName);
+
 
 int main(int argc, char* argv[]) {
     if (argc > 2) {
@@ -45,7 +50,10 @@ int batch_mode(char* fileName) {
     return 0;
 }
 
-void interactive_mode(void) { return; }
+void interactive_mode(void) { 
+    //Introduction Message
+    printf("Welcome to myShell!\n");
+    return; }
 
 // Helper Funcs
 void read_file(FILE* file) {
@@ -111,3 +119,31 @@ bool is_empty_or_whitespace(const char* str) {
     }
     return true;  // String is empty or contains only whitespace
 }
+
+
+
+//Built-in Commands
+
+//Change working directory
+//path argument is a path to a directory
+//Prints an error and fails if it is given the wrong number of args, or if chdir() fails
+void cd(const char* path){}
+
+
+//Prints the current working directory to StdOut
+//Returns 0 on error and 1 on success
+int pwd(){
+    char cwd[PATH_MAX];
+
+    if(getcwd(cwd, sizeof(cwd)) != NULL){
+        printf("&s\n", cwd);
+    }
+    else{
+        perror("Could not get current working directory");
+        return 0;
+    }
+    return 1;
+
+}
+
+void which(const char* progName){}
