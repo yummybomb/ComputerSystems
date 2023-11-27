@@ -146,4 +146,8 @@ int pwd(){
 
 }
 
+//Takes signle argument: name of a program
+//Prints the path that mysh would use if asked to start that program
+//^The result of the search used for bare names
+//Prints nothing and fails if given wrong number of args, name of a built-in, or program not found
 void which(const char* progName){}
