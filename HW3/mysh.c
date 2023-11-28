@@ -12,6 +12,7 @@ int batch_mode(char* fileName);
 void interactive_mode(void);
 // Helper Funcs
 void read_file(FILE* file);
+char *read_line(void);
 bool is_empty_or_whitespace(const char* str);
 void process_line(const char* line);
 void handle_error(const char* msg);
@@ -56,6 +57,45 @@ void interactive_mode(void) {
     return; }
 
 // Helper Funcs
+char *read_line(){
+     // Allocate initial buffer
+    char* line = malloc(INITIAL_BUFFER_SIZE);
+    if (line == NULL) {
+        handle_error("Error allocating memory");
+    }
+
+    size_t bufferSize = INITIAL_BUFFER_SIZE;
+    size_t contentSize = 0;
+
+    // Read character
+    char c;
+
+    while(c != '\n'){
+        if (contentSize >= bufferSize) {
+            bufferSize *= 2;
+            line = realloc(line, bufferSize);
+            if (line == NULL) {
+                handle_error("Error reallocating memory");
+            }
+        }
+        c = getc(stdin);
+        line[contentSize++] = (char)c;
+
+        if (c == '\n') {
+            line[contentSize] = '\0';
+            contentSize = 0;
+        }
+    }
+
+    if (contentSize > 0) {
+        line[contentSize] = '\0';
+    }
+
+    return line;
+
+}
+
+
 void read_file(FILE* file) {
     // Allocate initial buffer
     char* line = malloc(INITIAL_BUFFER_SIZE);
