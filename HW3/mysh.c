@@ -153,12 +153,6 @@ void process_line(const char* line) {
         pwd();
         return;
     }
-
-    if(strcmp(line, "exit") == 0){
-        exit_function();
-        return;
-    }
-
     //TODO: MORE COMMANDS / OPTIONS
     
 
