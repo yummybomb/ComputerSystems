@@ -142,8 +142,26 @@ void process_line(const char* line) {
     if (is_empty_or_whitespace(line)) {
         return;
     }
-    // WIP Process Line Here
-    printf("%s", line);
+
+    if(line[0] == '/'){
+        //TODO FILE SEARCHING
+
+        return;
+    }
+
+    if(strcmp(line, "pwd") == 0){
+        pwd();
+        return;
+    }
+
+    if(strcmp(line, "exit") == 0){
+        exit_function();
+        return;
+    }
+
+    //TODO: MORE COMMANDS / OPTIONS
+    
+
 }
 
 void handle_error(const char* msg) {
