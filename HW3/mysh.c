@@ -20,6 +20,7 @@ void handle_error(const char* msg);
 void cd(const char* path);
 int pwd(void);
 void which(const char* progName);
+void exit_mysh();
 
 
 int main(int argc, char* argv[]) {
@@ -58,8 +59,14 @@ void interactive_mode(void) {
     while(1 == 1){
         printf("mysh> ");
         line = read_line();
-        process_line(line);
-        free(line);
+        if(strcmp(line, "exit\n") != 0){
+            process_line(line);
+            free(line);
+        }
+        else{
+            free(line);
+            exit_mysh();
+        }
     }
     return; }
 
@@ -212,3 +219,8 @@ int pwd(){
 //^The result of the search used for bare names
 //Prints nothing and fails if given wrong number of args, name of a built-in, or program not found
 void which(const char* progName){}
+
+void exit_mysh(){
+    printf("mysh: exiting");
+    exit(1);
+}
