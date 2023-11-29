@@ -54,6 +54,13 @@ int batch_mode(char* fileName) {
 void interactive_mode(void) { 
     //Introduction Message
     printf("Welcome to myShell!\n");
+    char *line;
+    while(1 == 1){
+        printf("mysh> ");
+        line = read_line();
+        process_line(line);
+        free(line);
+    }
     return; }
 
 // Helper Funcs
@@ -149,12 +156,14 @@ void process_line(const char* line) {
         return;
     }
 
-    if(strcmp(line, "pwd") == 0){
+    if(strcmp(line, "pwd\n") == 0){
         pwd();
         return;
     }
     //TODO: MORE COMMANDS / OPTIONS
     
+    printf("Not a valid command\n");
+    return;
 
 }
 
@@ -188,7 +197,7 @@ int pwd(){
     char cwd[PATH_MAX];
 
     if(getcwd(cwd, sizeof(cwd)) != NULL){
-        printf("&s\n", cwd);
+        printf("%s\n", cwd);
     }
     else{
         perror("Could not get current working directory");
