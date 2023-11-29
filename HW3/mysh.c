@@ -14,12 +14,13 @@ void interactive_mode(void);
 void read_file(FILE* file);
 char *read_line(void);
 bool is_empty_or_whitespace(const char* str);
-void process_line(const char* line);
+void process_line(char* line);
 void handle_error(const char* msg);
 //Built-in commands
 void cd(const char* path);
 int pwd(void);
 void which(const char* progName);
+void echo(const char* line);
 void exit_mysh();
 
 
@@ -59,6 +60,7 @@ void interactive_mode(void) {
     while(1 == 1){
         printf("mysh> ");
         line = read_line();
+
         if(strcmp(line, "exit\n") != 0){
             process_line(line);
             free(line);
@@ -152,24 +154,40 @@ void read_file(FILE* file) {
     free(line);
 }
 
-void process_line(const char* line) {
+void process_line(char* line) {
+
     if (is_empty_or_whitespace(line)) {
         return;
     }
 
+    //First check if there exists a /, in which case it is a path
     if(line[0] == '/'){
         //TODO FILE SEARCHING
 
         return;
     }
 
+    //Otherwise, check if the first argument is a built-in command
+
+    //Commands that don't require arguments
     if(strcmp(line, "pwd\n") == 0){
         pwd();
         return;
     }
-    //TODO: MORE COMMANDS / OPTIONS
+
+    //commands that require arguments
+
+    //get the first argument (which should be a command or file name)
+    char* argument = strtok(line, " ");
+
+    if(strcmp(argument, "cd") == 0) {cd(argument); return;}
+    else if(strcmp(argument, "cd\n") == 0){ printf("cd requires one argument\n"); return;}
+    //Then check if the first argument is a file name
     
+
+    //Lastly, print an error message if it is none of the above
     printf("Not a valid command\n");
+
     return;
 
 }
@@ -195,7 +213,24 @@ bool is_empty_or_whitespace(const char* str) {
 //Change working directory
 //path argument is a path to a directory
 //Prints an error and fails if it is given the wrong number of args, or if chdir() fails
-void cd(const char* path){}
+void cd(const char* path){
+    path = strtok(NULL, " ");
+    char* cdArg = strdup(path);
+    path = strtok(NULL, " ");
+    if(path != NULL){
+        printf("cd can only accept one argument\n");
+        free(cdArg);
+        return;
+    }
+
+    int status = chdir(cdArg);
+    if(status != 0){
+        printf("No such file or directory\n");
+    }
+
+    free(cdArg);
+
+}
 
 
 //Prints the current working directory to StdOut
@@ -223,4 +258,8 @@ void which(const char* progName){}
 void exit_mysh(){
     printf("mysh: exiting");
     exit(1);
+}
+
+void echo(const char* line){
+    printf("%s", line);
 }
