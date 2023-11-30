@@ -188,6 +188,11 @@ bool is_empty_or_whitespace(const char* str) {
     return true;  // String is empty or contains only whitespace
 }
 
+char** get_arguments(char* line){
+    int argc = 0;
+    char* countArgs = strtok(line, " ");
+    while(token )
+}
 
 
 //Built-in Commands
