@@ -58,22 +58,16 @@ void interactive_mode(void) {
     //Introduction Message
     printf("Welcome to myShell!\n");
     char *line;
+
+    //While loop will run until exit command is given
     while(1 == 1){
         printf("mysh> ");
         line = read_line();
-        if(strcmp(line, "exit\n") != 0){
-
-            //TODO HERE:
-            process_line(line);
-
-            free(line);
-        }
-        else{
-            free(line);
-            exit_mysh();
-        }
+        process_line(line);
+        free(line);
     }
-    return; }
+    return; 
+}
 
 // Helper Funcs
 char *read_line(){
@@ -175,6 +169,12 @@ void process_line(char* line) {
         return;
     }
     //TODO: MORE COMMANDS / OPTIONS
+
+
+    //exit command
+    if(strcmp(arguments[0], "exit\n") == 0 && argc == 1){
+        exit_mysh(line);
+    }
     
     printf("Not a valid command\n");
     return;
@@ -253,7 +253,8 @@ int pwd(){
 //Prints nothing and fails if given wrong number of args, name of a built-in, or program not found
 void which(const char* progName){}
 
-void exit_mysh(){
+void exit_mysh(char* line){
     printf("mysh: exiting");
+    free(line);
     exit(1);
 }
