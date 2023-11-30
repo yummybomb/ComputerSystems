@@ -153,18 +153,22 @@ void read_file(FILE* file) {
 
 void process_line(char* line) {
 
+    //These 3 lines are used to get a string array 'arguments,' which stores all arguments of 'line'
     int argc = count_arguments(line);
     char *arguments[argc];
     get_arguments(line, arguments, argc);
 
+    //Whitespace or empty case
     if (argc == 0) return;
 
+    //File searching
     if(arguments[0][0] == '/'){
         //TODO FILE SEARCHING
         return;
     }
 
-    if(strcmp(arguments[0], "pwd\n") == 0){
+    //pwd (only if pwd is the only argument)
+    if((strcmp(arguments[0], "pwd") == 0 || strcmp(arguments[0], "pwd\n") == 0) && argc == 1){
         pwd();
         return;
     }
@@ -172,7 +176,7 @@ void process_line(char* line) {
 
 
     //exit command
-    if(strcmp(arguments[0], "exit\n") == 0 && argc == 1){
+    if((strcmp(arguments[0], "exit") == 0 || strcmp(arguments[0], "exit\n") == 0) && argc == 1){
         exit_mysh(line);
     }
     
@@ -195,11 +199,13 @@ bool is_empty_or_whitespace(const char* str) {
     return true;  // String is empty or contains only whitespace
 }
 
+//get arguments takes in the string user input, a char** to store the arguments in, and argc (how many arguments)
+//there are no returns: the array arguments is modified to store all the arguments present in 'line'
 void get_arguments(char* line , char** arguments, int argc){
     int index = 0;
     char* token = strtok(line, " ");
     while(token != NULL){
-        if(is_empty_or_whitespace(token) == false){
+        if(is_empty_or_whitespace(token) == false){ //only non-empty arguments are stored in the array
             arguments[index++] = token;
         }
         token = strtok(NULL,  " ");
@@ -209,16 +215,16 @@ void get_arguments(char* line , char** arguments, int argc){
 //This function counts how many arguments is in a string line (excludes whitespace)
 int count_arguments(char* original_line){
     int argc = 0;
-    char* line = strdup(original_line);
+    char* line = strdup(original_line); //a duplicate line must be made since strtok modifies strings
     char* countArgs = strtok(line, " ");
     while(countArgs != NULL){
-        if(is_empty_or_whitespace(countArgs) == false){
+        if(is_empty_or_whitespace(countArgs) == false){ //argc only increases if the token is not empty
             argc++;
         }
         countArgs = strtok(NULL, " ");
     }
 
-    free(line);
+    free(line); //freeing the duplicate string
     return argc;
 }
 
@@ -253,6 +259,7 @@ int pwd(){
 //Prints nothing and fails if given wrong number of args, name of a built-in, or program not found
 void which(const char* progName){}
 
+//This currently only works for interactive-mode
 void exit_mysh(char* line){
     printf("mysh: exiting");
     free(line);
