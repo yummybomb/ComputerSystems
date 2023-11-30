@@ -15,6 +15,8 @@ void read_file(FILE* file);
 char *read_line(void);
 bool is_empty_or_whitespace(const char* str);
 void process_line(const char* line);
+void get_arguments(char* line , char** arguments, int argc);
+int count_arguments(char* line);
 void handle_error(const char* msg);
 //Built-in commands
 void cd(const char* path);
@@ -60,7 +62,9 @@ void interactive_mode(void) {
         printf("mysh> ");
         line = read_line();
         if(strcmp(line, "exit\n") != 0){
-            process_line(line);
+
+            //TODO HERE:
+
             free(line);
         }
         else{
@@ -188,10 +192,31 @@ bool is_empty_or_whitespace(const char* str) {
     return true;  // String is empty or contains only whitespace
 }
 
-char** get_arguments(char* line){
+void get_arguments(char* line , char** arguments, int argc){
+    int index = 0;
+    char* token = strtok(line, " ");
+    while(token != NULL){
+        if(is_empty_or_whitespace(token) == false){
+            arguments[index++] = token;
+        }
+        token = strtok(NULL,  " ");
+    }
+}
+
+//This function counts how many arguments is in a string line (excludes whitespace)
+int count_arguments(char* original_line){
     int argc = 0;
+    char* line = strdup(original_line);
     char* countArgs = strtok(line, " ");
-    while(token )
+    while(countArgs != NULL){
+        if(is_empty_or_whitespace(countArgs) == false){
+            argc++;
+        }
+        countArgs = strtok(NULL, " ");
+    }
+
+    free(line);
+    return argc;
 }
 
 
