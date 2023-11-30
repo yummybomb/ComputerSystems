@@ -168,15 +168,25 @@ void process_line(char* line) {
     }
 
     //pwd (only if pwd is the only argument)
-    if((strcmp(arguments[0], "pwd") == 0 || strcmp(arguments[0], "pwd\n") == 0) && argc == 1){
+    if(strcmp(arguments[0], "pwd") == 0 && argc == 1){
         pwd();
         return;
     }
+
+    //cd (should only take one argument, other if more)
+    if(strcmp(arguments[0], "cd") == 0){
+        if(argc == 2) cd(arguments[1]);
+        else if(argc == 1) printf("cd requires a path\n");
+        else printf("incorrect number of arguments\n");
+        return;
+    }
+
+
     //TODO: MORE COMMANDS / OPTIONS
 
 
     //exit command
-    if((strcmp(arguments[0], "exit") == 0 || strcmp(arguments[0], "exit\n") == 0) && argc == 1){
+    if(strcmp(arguments[0], "exit") == 0 && argc == 1){
         exit_mysh(line);
     }
     
@@ -236,7 +246,12 @@ int count_arguments(char* original_line){
 //Change working directory
 //path argument is a path to a directory
 //Prints an error and fails if it is given the wrong number of args, or if chdir() fails
-void cd(const char* path){}
+void cd(const char* path){
+    int status = chdir(path);
+    if(status != 0){
+        perror("could not change directory to specified path");
+    }
+}
 
 
 //Prints the current working directory to StdOut
