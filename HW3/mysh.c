@@ -207,6 +207,8 @@ void get_arguments(char* line , char** arguments, int argc){
     while(token != NULL){
         if(is_empty_or_whitespace(token) == false){ //only non-empty arguments are stored in the array
             arguments[index++] = token;
+            int length = strlen(token);
+            if(arguments[index - 1][length - 1] == '\n') arguments[index-1][length-1] = '\0';
         }
         token = strtok(NULL,  " ");
     }
