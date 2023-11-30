@@ -14,7 +14,7 @@ void interactive_mode(void);
 void read_file(FILE* file);
 char *read_line(void);
 bool is_empty_or_whitespace(const char* str);
-void process_line(const char* line);
+void process_line(char* line);
 void get_arguments(char* line , char** arguments, int argc);
 int count_arguments(char* line);
 void handle_error(const char* msg);
@@ -64,6 +64,7 @@ void interactive_mode(void) {
         if(strcmp(line, "exit\n") != 0){
 
             //TODO HERE:
+            process_line(line);
 
             free(line);
         }
@@ -156,18 +157,20 @@ void read_file(FILE* file) {
     free(line);
 }
 
-void process_line(const char* line) {
-    if (is_empty_or_whitespace(line)) {
-        return;
-    }
+void process_line(char* line) {
 
-    if(line[0] == '/'){
+    int argc = count_arguments(line);
+    char *arguments[argc];
+    get_arguments(line, arguments, argc);
+
+    if (argc == 0) return;
+
+    if(arguments[0][0] == '/'){
         //TODO FILE SEARCHING
-
         return;
     }
 
-    if(strcmp(line, "pwd\n") == 0){
+    if(strcmp(arguments[0], "pwd\n") == 0){
         pwd();
         return;
     }
