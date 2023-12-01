@@ -121,7 +121,7 @@ void read_file(FILE* file) {
     size_t contentSize = 0;
 
     // Read character
-    int c = " ";
+    int c;
     while ((c = getc(file)) != EOF) {
         if (contentSize >= bufferSize) {
             bufferSize *= 2;
@@ -290,12 +290,6 @@ int pwd(){
 //^The result of the search used for bare names
 //Prints nothing and fails if given wrong number of args, name of a built-in, or program not found
 void which(const char* progName){}
-
-void echo(char** arguments, int argc){
-    for(int i = 1; i < argc; i++){
-        printf("%s\n", arguments[i]);
-    }
-}
 
 //This currently only works for interactive-mode
 void exit_mysh(char* line){
