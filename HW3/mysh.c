@@ -25,6 +25,7 @@ void cd(const char* path);
 int pwd(void);
 char* which(const char* progName);
 void exit_mysh();
+void echo(char** arguments, int argc);
 
 
 int main(int argc, char* argv[]) {
@@ -122,7 +123,7 @@ void read_file(FILE* file) {
     size_t contentSize = 0;
 
     // Read character
-    int c = " ";
+    int c;
     while ((c = getc(file)) != EOF) {
         if (contentSize >= bufferSize) {
             bufferSize *= 2;
@@ -262,11 +263,6 @@ int count_arguments(char* original_line){
 
 //Split arguments for special characters <, >, and |
 void split_special_characters(char** result, char** source, int argc){
-    for(int i = 0; i < argc; i++){
-        char* arg = source[i];
-        char* temp;
-        
-    }
 }
 
 //Built-in Commands
@@ -315,8 +311,12 @@ char* which(const char *progName) {
    return NULL; // Return NULL if the program is not found
 }
 
+void echo(char** arguments, int argc){
+    for(int i = 1; i < argc; i++){
+        printf("%s\n", arguments[i]);
+    }
+}
 
-//This currently only works for interactive-mode
 void exit_mysh(char* line){
     printf("mysh: exiting");
     free(line);
