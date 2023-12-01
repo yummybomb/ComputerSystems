@@ -275,6 +275,7 @@ int count_arguments(char* original_line){
 void split_special_characters(char** result, char** source, int argc){
     for(int i = 0; i < argc; i++){
         char* line = source[i];
+        char* token = strchr(line, "")
     }
 }
 
