@@ -17,6 +17,7 @@ void read_file(FILE* file);
 char *read_line(void);
 bool is_empty_or_whitespace(const char* str);
 void process_line(char* line);
+void split_special_characters(char** result, char** source, int argc);
 void get_arguments(char* line , char** arguments, int argc);
 int count_arguments(char* line);
 void handle_error(const char* msg);
@@ -24,7 +25,7 @@ void handle_error(const char* msg);
 void cd(const char* path);
 int pwd(void);
 char* which(const char* progName);
-void exit_mysh();
+void exit_mysh(char* line);
 void echo(char** arguments, int argc);
 
 
@@ -263,6 +264,9 @@ int count_arguments(char* original_line){
 
 //Split arguments for special characters <, >, and |
 void split_special_characters(char** result, char** source, int argc){
+    for(int i = 0; i < argc; i++){
+        char* line = source[i];
+    }
 }
 
 //Built-in Commands
