@@ -291,15 +291,15 @@ int pwd(){
 //Prints nothing and fails if given wrong number of args, name of a built-in, or program not found
 void which(const char* progName){}
 
+void echo(char** arguments, int argc){
+    for(int i = 1; i < argc; i++){
+        printf("%s\n", arguments[i]);
+    }
+}
+
 //This currently only works for interactive-mode
 void exit_mysh(char* line){
     printf("mysh: exiting");
     free(line);
     exit(1);
-}
-
-void echo(char** arguments, int argc){
-    for(int i = 1; i < argc; i++){
-        printf("%s\n", arguments[i]);
-    }
 }
