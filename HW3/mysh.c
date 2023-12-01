@@ -24,7 +24,7 @@ void handle_error(const char* msg);
 void cd(const char* path);
 int pwd(void);
 char* which(const char* progName);
-void exit_mysh();
+void exit_mysh(char* line);
 void echo(char** arguments, int argc);
 
 
@@ -203,6 +203,15 @@ void process_line(char* line) {
         return;
     }
 
+    if(strcmp(arguments[0], "echo") == 0){
+        if (argc == 1) {
+            printf("echo requires a program name \n"); 
+            return;
+        }
+        echo(arguments, argc);
+        return;
+    }
+
     //TODO: MORE COMMANDS / OPTIONS
 
 
@@ -312,8 +321,9 @@ char* which(const char *progName) {
 }
 
 void echo(char** arguments, int argc){
+    printf("\n");
     for(int i = 1; i < argc; i++){
-        printf("%s\n", arguments[i]);
+        printf("%s ", arguments[i]);
     }
 }
 
