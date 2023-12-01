@@ -22,7 +22,8 @@ void handle_error(const char* msg);
 void cd(const char* path);
 int pwd(void);
 void which(const char* progName);
-void exit_mysh();
+void echo(char** arguments, int argc);
+void exit_mysh(char* line);
 
 
 int main(int argc, char* argv[]) {
@@ -181,6 +182,12 @@ void process_line(char* line) {
         return;
     }
 
+    if(strcmp(arguments[0], "echo") == 0){
+        if(argc == 1) printf("echo requires arguments\n");
+        else echo(arguments, argc);
+        return;
+    }
+
 
     //TODO: MORE COMMANDS / OPTIONS
 
@@ -281,4 +288,10 @@ void exit_mysh(char* line){
     printf("mysh: exiting");
     free(line);
     exit(1);
+}
+
+void echo(char** arguments, int argc){
+    for(int i = 1; i < argc; i++){
+        printf("%s\n", arguments[i]);
+    }
 }
