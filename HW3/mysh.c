@@ -121,7 +121,7 @@ void read_file(FILE* file) {
     size_t contentSize = 0;
 
     // Read character
-    int c;
+    int c = " ";
     while ((c = getc(file)) != EOF) {
         if (contentSize >= bufferSize) {
             bufferSize *= 2;
@@ -247,6 +247,14 @@ int count_arguments(char* original_line){
     return argc;
 }
 
+//Split arguments for special characters <, >, and |
+void split_special_characters(char** result, char** source, int argc){
+    for(int i = 0; i < argc; i++){
+        char* arg = source[i];
+        char* temp;
+        
+    }
+}
 
 //Built-in Commands
 
