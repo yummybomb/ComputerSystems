@@ -81,7 +81,7 @@ char *read_line(){
     size_t contentSize = 0;
 
     // Read character
-    char c;
+    char c = ' ';
 
     while(c != '\n'){
         if (contentSize >= bufferSize) {
