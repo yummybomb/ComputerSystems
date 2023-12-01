@@ -204,6 +204,15 @@ void process_line(char* line) {
         return;
     }
 
+    if(strcmp(arguments[0], "echo") == 0){
+        if (argc == 1) {
+            printf("echo requires a program name \n"); 
+            return;
+        }
+        echo(arguments, argc);
+        return;
+    }
+
     //TODO: MORE COMMANDS / OPTIONS
 
 
@@ -316,8 +325,9 @@ char* which(const char *progName) {
 }
 
 void echo(char** arguments, int argc){
+    printf("\n");
     for(int i = 1; i < argc; i++){
-        printf("%s\n", arguments[i]);
+        printf("%s ", arguments[i]);
     }
 }
 
