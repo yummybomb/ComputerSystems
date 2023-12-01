@@ -5,6 +5,8 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
 #define INITIAL_BUFFER_SIZE 256
 // Function prototypes
@@ -21,9 +23,8 @@ void handle_error(const char* msg);
 //Built-in commands
 void cd(const char* path);
 int pwd(void);
-void which(const char* progName);
-void echo(char** arguments, int argc);
-void exit_mysh(char* line);
+char* which(const char* progName);
+void exit_mysh();
 
 
 int main(int argc, char* argv[]) {
@@ -181,13 +182,25 @@ void process_line(char* line) {
         else printf("incorrect number of arguments\n");
         return;
     }
-
-    if(strcmp(arguments[0], "echo") == 0){
-        if(argc == 1) printf("echo requires arguments\n");
-        else echo(arguments, argc);
+    // which
+    if(strcmp(arguments[0], "which") == 0){
+        if(argc == 1) {
+            printf("which requires a program name \n"); 
+            return;
+        }
+        if(argc > 2) {
+            printf("incorrect number of arguments\n"); 
+            return;
+        }
+        char *path = which(arguments[1]);
+        if (path == NULL) {
+            printf("Program %s not found\n", arguments[1]);
+            return;
+        }
+        printf("%s\n", path);
+        free(path); // free strdup path
         return;
     }
-
 
     //TODO: MORE COMMANDS / OPTIONS
 
@@ -281,17 +294,23 @@ int pwd(){
 //Prints the path that mysh would use if asked to start that program
 //^The result of the search used for bare names
 //Prints nothing and fails if given wrong number of args, name of a built-in, or program not found
-void which(const char* progName){}
+char* which(const char *progName) {
+   const char *dirs[] = {"/usr/local/bin", "/usr/bin", "/bin"};
+   char path[1024];
+
+   for (int i = 0; i < sizeof(dirs) / sizeof(dirs[0]); i++) {
+       snprintf(path, sizeof(path), "%s/%s", dirs[i], progName);
+       if (access(path, F_OK) != -1) {
+           return strdup(path); // Return a copy of the path
+       }
+   }
+   return NULL; // Return NULL if the program is not found
+}
+
 
 //This currently only works for interactive-mode
 void exit_mysh(char* line){
     printf("mysh: exiting");
     free(line);
     exit(1);
-}
-
-void echo(char** arguments, int argc){
-    for(int i = 1; i < argc; i++){
-        printf("%s\n", arguments[i]);
-    }
 }
