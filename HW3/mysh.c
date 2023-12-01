@@ -321,10 +321,10 @@ char* which(const char *progName) {
 }
 
 void echo(char** arguments, int argc){
-    printf("\n");
     for(int i = 1; i < argc; i++){
         printf("%s ", arguments[i]);
     }
+    printf("\n");
 }
 
 void exit_mysh(char* line){
