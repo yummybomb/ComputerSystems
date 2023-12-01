@@ -17,7 +17,6 @@ void read_file(FILE* file);
 char *read_line(void);
 bool is_empty_or_whitespace(const char* str);
 void process_line(char* line);
-void split_special_characters(char** result, char** source, int argc);
 void get_arguments(char* line , char** arguments, int argc);
 int count_arguments(char* line);
 void handle_error(const char* msg);
@@ -88,7 +87,7 @@ char *read_line(){
     char c = ' ';
 
     while(c != '\n'){
-        if (contentSize >= bufferSize) {
+        if (contentSize+1 >= bufferSize) {
             bufferSize *= 2;
             line = realloc(line, bufferSize);
             if (line == NULL) {
@@ -96,7 +95,8 @@ char *read_line(){
             }
         }
         c = getc(stdin);
-        line[contentSize++] = (char)c;
+        if(c == '|' || c == '<' || c == '>'){line[contentSize++] = ' '; line[contentSize++] = (char)c; line[contentSize++] = ' ';}
+        else line[contentSize++] = (char)c;
 
         if (c == '\n') {
             line[contentSize] = '\0';
@@ -269,14 +269,6 @@ int count_arguments(char* original_line){
 
     free(line); //freeing the duplicate string
     return argc;
-}
-
-//Split arguments for special characters <, >, and |
-void split_special_characters(char** result, char** source, int argc){
-    for(int i = 0; i < argc; i++){
-        char* line = source[i];
-        char* token = strchr(line, "")
-    }
 }
 
 //Built-in Commands
