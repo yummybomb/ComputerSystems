@@ -8,6 +8,10 @@
 #include <string.h>
 #include <unistd.h>
 
+//global variables
+//exit status (1 is fail, 0 is success) of last command. -1 on first command.
+int lastStatus = -1;
+
 #define INITIAL_BUFFER_SIZE 256
 // Function prototypes
 int batch_mode(char* fileName);
@@ -16,7 +20,7 @@ void interactive_mode(void);
 void read_file(FILE* file);
 char *read_line(void);
 bool is_empty_or_whitespace(const char* str);
-void process_line(char* line);
+void process_line(char* line, int lastStatus);
 void get_arguments(char* line , char** arguments, int argc);
 int count_arguments(char* line);
 void handle_error(const char* msg);
@@ -155,7 +159,7 @@ void read_file(FILE* file) {
     free(line);
 }
 
-void process_line(char* line) {
+void process_line(char* line, int lastStatus) {
 
     //These 3 lines are used to get a string array 'arguments,' which stores all arguments of 'line'
     int argc = count_arguments(line);
@@ -165,6 +169,16 @@ void process_line(char* line) {
     //Whitespace or empty case
     if (argc == 0) return;
 
+    if((strcmp(arguments[0], "then") == 0 || strcmp(arguments[0], "else") == 0) && lastStatus == -1){
+        printf("then or else cannot work in the first command");
+    }
+    else if(strcmp(arguments[0], "then") && lastStatus == 1){
+        return;
+    }
+    else if(strcmp(arguments[0], "else") && lastStatus == 0){
+        return;
+    }
+
     //File searching
     if(arguments[0][0] == '/'){
         //TODO FILE SEARCHING
@@ -172,8 +186,10 @@ void process_line(char* line) {
     }
 
     //pwd (only if pwd is the only argument)
-    if(strcmp(arguments[0], "pwd") == 0 && argc == 1){
-        pwd();
+    if(strcmp(arguments[0], "pwd") == 0){
+        if(argc == 1){pwd(); return;}
+        lastStatus = 1;
+        printf("pwd should be the only argument");
         return;
     }
 
@@ -182,21 +198,25 @@ void process_line(char* line) {
         if(argc == 2) cd(arguments[1]);
         else if(argc == 1) printf("cd requires a path\n");
         else printf("incorrect number of arguments\n");
+        lastStatus = 1;
         return;
     }
     // which
     if(strcmp(arguments[0], "which") == 0){
         if(argc == 1) {
             printf("which requires a program name \n"); 
+            lastStatus = 1;
             return;
         }
         if(argc > 2) {
             printf("incorrect number of arguments\n"); 
+            lastStatus = 1;
             return;
         }
         char *path = which(arguments[1]);
         if (path == NULL) {
             printf("Program %s not found\n", arguments[1]);
+            lastStatus = 1;
             return;
         }
         printf("%s\n", path);
@@ -207,6 +227,7 @@ void process_line(char* line) {
     if(strcmp(arguments[0], "echo") == 0){
         if (argc == 1) {
             printf("echo requires a program name \n"); 
+            lastStatus = 1;
             return;
         }
         echo(arguments, argc);
@@ -222,6 +243,7 @@ void process_line(char* line) {
     }
     
     printf("Not a valid command\n");
+    lastStatus = 1;
     return;
 
 }
@@ -279,8 +301,10 @@ int count_arguments(char* original_line){
 void cd(const char* path){
     int status = chdir(path);
     if(status != 0){
+        lastStatus = 1;
         perror("could not change directory to specified path");
     }
+    else lastStatus = 0;
 }
 
 
@@ -293,9 +317,11 @@ int pwd(){
         printf("%s\n", cwd);
     }
     else{
+        lastStatus = 1;
         perror("Could not get current working directory");
         return 0;
     }
+    lastStatus = 0;
     return 1;
 
 }
@@ -311,9 +337,11 @@ char* which(const char *progName) {
    for (int i = 0; i < sizeof(dirs) / sizeof(dirs[0]); i++) {
        snprintf(path, sizeof(path), "%s/%s", dirs[i], progName);
        if (access(path, F_OK) != -1) {
-           return strdup(path); // Return a copy of the path
+        lastStatus = 0;
+        return strdup(path); // Return a copy of the path
        }
    }
+   lastStatus = 1;
    return NULL; // Return NULL if the program is not found
 }
 
@@ -322,6 +350,7 @@ void echo(char** arguments, int argc){
         printf("%s ", arguments[i]);
     }
     printf("\n");
+    lastStatus = 0;
 }
 
 void exit_mysh(char* line){
