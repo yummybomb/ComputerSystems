@@ -169,8 +169,10 @@ void process_line(char* line, int lastStatus) {
     //Whitespace or empty case
     if (argc == 0) return;
 
+    //exit status stuff
     if((strcmp(arguments[0], "then") == 0 || strcmp(arguments[0], "else") == 0) && lastStatus == -1){
         printf("then or else cannot work in the first command");
+        return;
     }
     else if(strcmp(arguments[0], "then") && lastStatus == 1){
         return;
