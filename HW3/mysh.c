@@ -20,7 +20,7 @@ void interactive_mode(void);
 void read_file(FILE* file);
 char *read_line(void);
 bool is_empty_or_whitespace(const char* str);
-void process_line(char* line, int lastStatus);
+    void process_line(char* line, int lastStatus);
 int then_else_status(char** tokens, int tokc);
 void get_tokens(char* line , char** tokens, int tokc);
 int count_tokens(char* line);
