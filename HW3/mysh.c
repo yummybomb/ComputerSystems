@@ -278,6 +278,7 @@ int count_arguments(char* original_line){
 //Prints an error and fails if it is given the wrong number of args, or if chdir() fails
 void cd(const char* path){
     int status = chdir(path);
+    //todo home
     if(status != 0){
         perror("could not change directory to specified path");
     }
@@ -307,6 +308,7 @@ int pwd(){
 char* which(const char *progName) {
    const char *dirs[] = {"/usr/local/bin", "/usr/bin", "/bin"};
    char path[1024];
+   //hard code built-ins
 
    for (int i = 0; i < sizeof(dirs) / sizeof(dirs[0]); i++) {
        snprintf(path, sizeof(path), "%s/%s", dirs[i], progName);
