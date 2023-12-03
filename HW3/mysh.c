@@ -165,17 +165,8 @@ void process_line(char* line, int lastStatus) {
     int argc = count_arguments(line);
     char *arguments[argc];
     get_arguments(line, arguments, argc);
-
     //Whitespace or empty case
     if (argc == 0) return;
-
-    //exit status stuff
-    else if(strcmp(arguments[0], "then") && lastStatus == 1){
-        return;
-    }
-    else if(strcmp(arguments[0], "else") && lastStatus == 0){
-        return;
-    }
 
     //File searching
     if(arguments[0][0] == '/'){
