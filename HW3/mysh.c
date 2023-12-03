@@ -70,7 +70,7 @@ void interactive_mode(void) {
     while(1 == 1){
         printf("mysh> ");
         line = read_line();
-        process_line(line);
+        process_line(line, lastStatus);
         free(line);
     }
     return; 
@@ -144,7 +144,7 @@ void read_file(FILE* file) {
         // EOL - process and reset buffer
         if (c == '\n') {
             line[contentSize] = '\0';
-            process_line(line);
+            process_line(line, lastStatus);
             contentSize = 0;
         }
     }
@@ -152,7 +152,7 @@ void read_file(FILE* file) {
     // Process leftover content in a line
     if (contentSize > 0) {
         line[contentSize] = '\0';
-        process_line(line);
+        process_line(line, lastStatus);
     }
 
     // Clean up
