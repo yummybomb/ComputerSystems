@@ -21,8 +21,8 @@ void read_file(FILE* file);
 char *read_line(void);
 bool is_empty_or_whitespace(const char* str);
 void process_line(char* line, int lastStatus);
-void get_arguments(char* line , char** arguments, int argc);
-int count_arguments(char* line);
+void get_tokens(char* line , char** arguments, int argc);
+int count_tokens(char* line);
 void handle_error(const char* msg);
 //Built-in commands
 void cd(const char* path);
@@ -162,9 +162,9 @@ void read_file(FILE* file) {
 void process_line(char* line, int lastStatus) {
 
     //These 3 lines are used to get a string array 'arguments,' which stores all arguments of 'line'
-    int argc = count_arguments(line);
+    int argc = count_tokens(line);
     char *arguments[argc];
-    get_arguments(line, arguments, argc);
+    get_tokens(line, arguments, argc);
     //Whitespace or empty case
     if (argc == 0) return;
 
@@ -253,29 +253,29 @@ bool is_empty_or_whitespace(const char* str) {
 
 //get arguments takes in the string user input, a char** to store the arguments in, and argc (how many arguments)
 //there are no returns: the array arguments is modified to store all the arguments present in 'line'
-void get_arguments(char* line , char** arguments, int argc){
+void get_tokens(char* line , char** tokens, int argc){
     int index = 0;
     char* token = strtok(line, " ");
     while(token != NULL){
         if(is_empty_or_whitespace(token) == false){ //only non-empty arguments are stored in the array
-            arguments[index++] = token;
+            tokens[index++] = token;
             int length = strlen(token);
-            if(arguments[index - 1][length - 1] == '\n') arguments[index-1][length-1] = '\0';
+            if(tokens[index - 1][length - 1] == '\n') tokens[index-1][length-1] = '\0';
         }
         token = strtok(NULL,  " ");
     }
 }
 
 //This function counts how many arguments is in a string line (excludes whitespace)
-int count_arguments(char* original_line){
+int count_tokens(char* original_line){
     int argc = 0;
     char* line = strdup(original_line); //a duplicate line must be made since strtok modifies strings
-    char* countArgs = strtok(line, " ");
-    while(countArgs != NULL){
-        if(is_empty_or_whitespace(countArgs) == false){ //argc only increases if the token is not empty
+    char* countTokens = strtok(line, " ");
+    while(countTokens != NULL){
+        if(is_empty_or_whitespace(countTokens) == false){ //argc only increases if the token is not empty
             argc++;
         }
-        countArgs = strtok(NULL, " ");
+        countTokens = strtok(NULL, " ");
     }
 
     free(line); //freeing the duplicate string
