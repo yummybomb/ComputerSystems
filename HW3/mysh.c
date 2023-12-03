@@ -9,7 +9,7 @@
 #include <unistd.h>
 
 //global variables
-//exit status (1 is fail, 0 is success) of last command. -1 on first command.
+//exit status (1 is fail, 0 is success) of last command.
 int lastStatus = 0;
 
 #define INITIAL_BUFFER_SIZE 256
@@ -21,6 +21,7 @@ void read_file(FILE* file);
 char *read_line(void);
 bool is_empty_or_whitespace(const char* str);
 void process_line(char* line, int lastStatus);
+int then_else_status(char** tokens, int tokc);
 void get_tokens(char* line , char** tokens, int tokc);
 int count_tokens(char* line);
 void handle_error(const char* msg);
@@ -249,6 +250,18 @@ bool is_empty_or_whitespace(const char* str) {
         str++;
     }
     return true;  // String is empty or contains only whitespace
+}
+
+//0 is success, 1 is failure
+int then_else_status(char** tokens, int tokc){
+    if(tokc == 0) return 0;
+    if(tokc == 1){
+        printf("cannot have then or else by itself");
+        return 1;
+    }
+    if(strcmp(tokens[0], "then") == 0 && lastStatus == 1) return 1;
+    if(strcmp(tokens[0], "else") == 0 && lastStatus == 0) return 1;
+    return 0;
 }
 
 //get tokens takes in the string user input, a char** to store the tokens in, and tokc (how many tokens)
