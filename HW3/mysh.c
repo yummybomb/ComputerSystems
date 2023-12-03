@@ -21,7 +21,7 @@ void read_file(FILE* file);
 char *read_line(void);
 bool is_empty_or_whitespace(const char* str);
 void process_line(char* line, int lastStatus);
-void get_tokens(char* line , char** arguments, int argc);
+void get_tokens(char* line , char** tokens, int tokc);
 int count_tokens(char* line);
 void handle_error(const char* msg);
 //Built-in commands
@@ -161,50 +161,50 @@ void read_file(FILE* file) {
 
 void process_line(char* line, int lastStatus) {
 
-    //These 3 lines are used to get a string array 'arguments,' which stores all arguments of 'line'
-    int argc = count_tokens(line);
-    char *arguments[argc];
-    get_tokens(line, arguments, argc);
+    //These 3 lines are used to get a string array 'tokens,' which stores all tokens of 'line'
+    int tokc = count_tokens(line);
+    char *tokens[tokc];
+    get_tokens(line, tokens, tokc);
     //Whitespace or empty case
-    if (argc == 0) return;
+    if (tokc == 0) return;
 
     //File searching
-    if(arguments[0][0] == '/'){
+    if(tokens[0][0] == '/'){
         //TODO FILE SEARCHING
         return;
     }
 
     //pwd (only if pwd is the only argument)
-    if(strcmp(arguments[0], "pwd") == 0){
-        if(argc == 1){pwd(); return;}
+    if(strcmp(tokens[0], "pwd") == 0){
+        if(tokc == 1){pwd(); return;}
         lastStatus = 1;
         printf("pwd should be the only argument");
         return;
     }
 
     //cd (should only take one argument, other if more)
-    if(strcmp(arguments[0], "cd") == 0){
-        if(argc == 2) cd(arguments[1]);
-        else if(argc == 1) printf("cd requires a path\n");
+    if(strcmp(tokens[0], "cd") == 0){
+        if(tokc == 2) cd(tokens[1]);
+        else if(tokc == 1) printf("cd requires a path\n");
         else printf("incorrect number of arguments\n");
         lastStatus = 1;
         return;
     }
     // which
-    if(strcmp(arguments[0], "which") == 0){
-        if(argc == 1) {
+    if(strcmp(tokens[0], "which") == 0){
+        if(tokc == 1) {
             printf("which requires a program name \n"); 
             lastStatus = 1;
             return;
         }
-        if(argc > 2) {
+        if(tokc > 2) {
             printf("incorrect number of arguments\n"); 
             lastStatus = 1;
             return;
         }
-        char *path = which(arguments[1]);
+        char *path = which(tokens[1]);
         if (path == NULL) {
-            printf("Program %s not found\n", arguments[1]);
+            printf("Program %s not found\n", tokens[1]);
             lastStatus = 1;
             return;
         }
@@ -213,13 +213,13 @@ void process_line(char* line, int lastStatus) {
         return;
     }
 
-    if(strcmp(arguments[0], "echo") == 0){
-        if (argc == 1) {
+    if(strcmp(tokens[0], "echo") == 0){
+        if (tokc == 1) {
             printf("echo requires a program name \n"); 
             lastStatus = 1;
             return;
         }
-        echo(arguments, argc);
+        echo(tokens, tokc);
         return;
     }
 
@@ -227,7 +227,7 @@ void process_line(char* line, int lastStatus) {
 
 
     //exit command
-    if(strcmp(arguments[0], "exit") == 0 && argc == 1){
+    if(strcmp(tokens[0], "exit") == 0 && tokc == 1){
         exit_mysh(line);
     }
     
@@ -251,13 +251,13 @@ bool is_empty_or_whitespace(const char* str) {
     return true;  // String is empty or contains only whitespace
 }
 
-//get arguments takes in the string user input, a char** to store the arguments in, and argc (how many arguments)
-//there are no returns: the array arguments is modified to store all the arguments present in 'line'
-void get_tokens(char* line , char** tokens, int argc){
+//get tokens takes in the string user input, a char** to store the tokens in, and tokc (how many tokens)
+//there are no returns: the array tokens is modified to store all the tokens present in 'line'
+void get_tokens(char* line , char** tokens, int tokc){
     int index = 0;
     char* token = strtok(line, " ");
     while(token != NULL){
-        if(is_empty_or_whitespace(token) == false){ //only non-empty arguments are stored in the array
+        if(is_empty_or_whitespace(token) == false){ //only non-empty tokens are stored in the array
             tokens[index++] = token;
             int length = strlen(token);
             if(tokens[index - 1][length - 1] == '\n') tokens[index-1][length-1] = '\0';
@@ -266,20 +266,20 @@ void get_tokens(char* line , char** tokens, int argc){
     }
 }
 
-//This function counts how many arguments is in a string line (excludes whitespace)
+//This function counts how many tokens is in a string line (excludes whitespace)
 int count_tokens(char* original_line){
-    int argc = 0;
+    int tokc = 0;
     char* line = strdup(original_line); //a duplicate line must be made since strtok modifies strings
     char* countTokens = strtok(line, " ");
     while(countTokens != NULL){
-        if(is_empty_or_whitespace(countTokens) == false){ //argc only increases if the token is not empty
-            argc++;
+        if(is_empty_or_whitespace(countTokens) == false){ //tokc only increases if the token is not empty
+            tokc++;
         }
         countTokens = strtok(NULL, " ");
     }
 
     free(line); //freeing the duplicate string
-    return argc;
+    return tokc;
 }
 
 //Built-in Commands
