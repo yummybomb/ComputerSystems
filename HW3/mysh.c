@@ -32,6 +32,14 @@ char* which(const char* progName);
 void exit_mysh(char* line);
 void echo(char** arguments, int argc);
 
+typedef struct Command {
+    int argc;
+    char* command;
+    char** arguments;
+    char* inputFile;
+    char* outputFile;
+    bool isBackground;
+} Command;
 
 int main(int argc, char* argv[]) {
     if (argc > 2) {
