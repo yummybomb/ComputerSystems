@@ -10,7 +10,7 @@
 
 //global variables
 //exit status (1 is fail, 0 is success) of last command. -1 on first command.
-int lastStatus = -1;
+int lastStatus = 0;
 
 #define INITIAL_BUFFER_SIZE 256
 // Function prototypes
@@ -170,10 +170,6 @@ void process_line(char* line, int lastStatus) {
     if (argc == 0) return;
 
     //exit status stuff
-    if((strcmp(arguments[0], "then") == 0 || strcmp(arguments[0], "else") == 0) && lastStatus == -1){
-        printf("then or else cannot work in the first command");
-        return;
-    }
     else if(strcmp(arguments[0], "then") && lastStatus == 1){
         return;
     }
