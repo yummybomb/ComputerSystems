@@ -44,7 +44,6 @@ int cd(const char* path);
 int pwd(void);
 char* which(const char* progName);
 void exit_mysh(char* line);
-void echo(char** arguments, int argc);
 
 int main(int argc, char* argv[]) {
     if (argc > 2) {
@@ -203,78 +202,79 @@ int process_line(char* line, int lastStatus) {
 
     for (int i = 0; i < total_commands; i++){
         //redirection attempt
-        if (commands[i].inputFile != NULL){
-            int in;
-            if ((in = open(commands[i].inputFile, O_RDONLY)) < 0) {   // open file for reading
-                fprintf(stderr, "error opening file\n");
+        int pid;
+        if ((pid = fork()) < 0){
+            perror("fork failed");
+        }else if (pid == 0) {
+            if (commands[i].inputFile){
+                int in;
+                if ((in = open(commands[i].inputFile, O_RDONLY)) < 0) {   // open file for reading
+                    fprintf(stderr, "error opening file\n");
+                }
+                dup2(in, STDIN_FILENO);
+                close(in);
             }
-            dup2(in, STDIN_FILENO);
-            close(in);
-        }
-        if (commands[i].outputFile != NULL){       
-            int out;
-            out = creat(commands[i].outputFile, 0640);
-            dup2(out, STDOUT_FILENO);
-            close(out); 
-        }
-
-
-
-        //pwd (only if pwd is the only argument)
-        if(strcmp(commands[i].command, "pwd") == 0){
-            if(commands[i].argc != 0){
-                fprintf(stderr, "Error: pwd should be the only argument\n");
-                return 1;
+            if (commands[i].outputFile){       
+                int out;
+                out = creat(commands[i].outputFile, 0640);
+                dup2(out, STDOUT_FILENO);
+                close(out); 
             }
-            return pwd();
-        }
-         //cd (should only take one argument, other if more)
-        if(strcmp(commands[i].command, "cd") == 0){
-            if(commands[i].argc != 1){
-                fprintf(stderr, "Error: cd incorrect number of arguments\n");
-                return 1;
-            }
-            return cd(commands[i].arguments[0]);
-        }
-        if(strcmp(commands[i].command, "which") == 0){
-            if(commands[i].argc == 0) {
-                fprintf(stderr, "Error: which requires a program name \n"); 
-                return 1;
-            }
-            if(commands[i].argc > 1) {
-                fprintf(stderr, "Error: which incorrect number of arguments\n"); 
-                return 1;
-            }
-            char *path = which(commands[i].arguments[0]);
-
-            if (path == NULL) {
-                fprintf(stderr, "Program %s not found\n", commands[i].arguments[0]);
-                return 1;
-            }
-            printf("%s\n", path);
-            free(path); // free strdup path
-            return 0;
-        }
-
-        if(strcmp(commands[i].command, "echo") == 0){
-            if (commands[i].argc == 0) {
-                fprintf(stderr, "echo requires a program name \n"); 
-                return 1;
-            }
-            echo(commands[i].arguments, commands[i].argc);
-            return 0;
-        }
-         //TODO: MORE COMMANDS / OPTIONS
 
 
-        //exit command
-        if(strcmp(commands[i].command, "exit") == 0 && commands[i].argc == 1){
-            exit_mysh(line);
-        }
-        fprintf(stderr, "Not a valid command\n");
 
-        //remove return later
-        return 1;
+            //pwd (only if pwd is the only argument)
+            if(strcmp(commands[i].command, "pwd") == 0){
+                if(commands[i].argc != 0){
+                    fprintf(stderr, "Error: pwd should be the only argument\n");
+                    return 1;
+                }
+                return pwd();
+            }
+            //cd (should only take one argument, other if more)
+            if(strcmp(commands[i].command, "cd") == 0){
+                if(commands[i].argc != 1){
+                    fprintf(stderr, "Error: cd incorrect number of arguments\n");
+                    return 1;
+                }
+                return cd(commands[i].arguments[0]);
+            }
+            if(strcmp(commands[i].command, "which") == 0){
+                if(commands[i].argc == 0) {
+                    fprintf(stderr, "Error: which requires a program name \n"); 
+                    return 1;
+                }
+                if(commands[i].argc > 1) {
+                    fprintf(stderr, "Error: which incorrect number of arguments\n"); 
+                    return 1;
+                }
+                char *path = which(commands[i].arguments[0]);
+
+                if (path == NULL) {
+                    fprintf(stderr, "Program %s not found\n", commands[i].arguments[0]);
+                    return 1;
+                }
+                printf("%s\n", path);
+                free(path); // free strdup path
+                return 0;
+            }
+            //exit command
+            if(strcmp(commands[i].command, "exit") == 0 && commands[i].argc == 1){
+                exit_mysh(line);
+            }
+
+            //Other commands
+            char* path = which(commands[i].command);
+            execv(path, commands[i].arguments);
+            
+            //TODO: MORE COMMANDS / OPTIONS
+
+            //remove return later
+            return 1;
+        }
+        else{
+            return 1;
+        }
     }
     return 0;
 }
@@ -438,13 +438,6 @@ char* which(const char *progName) {
    }
    lastStatus = 1;
    return NULL; // Return NULL if the program is not found
-}
-
-void echo(char** arguments, int argc){
-    for(int i = 0; i < argc; i++){
-        printf("%s ", arguments[i]);
-    }
-    printf("\n");
 }
 
 void exit_mysh(char* line){
