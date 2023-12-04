@@ -187,8 +187,8 @@ void process_line(char* line, int lastStatus) {
     if(strcmp(tokens[tokc-1], "<") == 0 || strcmp(tokens[tokc-1], ">") == 0){perror("cannot have redirect at end"); return;}
 
     for(int i = 1; i < tokc; i++){
-        if ((tokens[i] == tokens[i-1]) && (strcmp(tokens[i], "<") == 0 || strcmp(tokens[i],">") == 0 || strcmp(tokens[i], "|") == 0)) {
-            perror("Cannot have a double redirect/pipe");
+        if ((strcmp(tokens[i], tokens[i-1]) == 0) && (strcmp(tokens[i], "<") == 0 || strcmp(tokens[i],">") == 0 || strcmp(tokens[i], "|") == 0)) {
+            fprintf("Cannot have a double redirect/pipe");
             }
     }
 
