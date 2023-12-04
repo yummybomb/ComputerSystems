@@ -6,6 +6,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 #include <unistd.h>
 
 //structs
@@ -202,81 +204,91 @@ int process_line(char* line, int lastStatus) {
 
     for (int i = 0; i < total_commands; i++){
         //redirection attempt
-        int pid;
-        if ((pid = fork()) < 0){
-            perror("fork failed");
-        }else if (pid == 0) {
-            if (commands[i].inputFile){
-                int in;
-                if ((in = open(commands[i].inputFile, O_RDONLY)) < 0) {   // open file for reading
-                    fprintf(stderr, "error opening file\n");
-                }
-                dup2(in, STDIN_FILENO);
-                close(in);
+        if (commands[i].inputFile){
+            int in;
+            if ((in = open(commands[i].inputFile, O_RDONLY)) < 0) {   // open file for reading
+                fprintf(stderr, "error opening file\n");
             }
-            if (commands[i].outputFile){       
-                int out;
-                out = creat(commands[i].outputFile, 0640);
-                dup2(out, STDOUT_FILENO);
-                close(out); 
-            }
+            dup2(in, STDIN_FILENO);
+            close(in);
+        }
+        if (commands[i].outputFile){       
+            int out;
+            out = creat(commands[i].outputFile, 0640);
+            dup2(out, STDOUT_FILENO);
+            close(out); 
+        }
 
+        printf("argc: %d\n", commands[i].argc);
+        printf("argv: ");
+        for (int j = 0; j < commands[i].argc+1; j++){
+            printf("%s ", commands[i].arguments[j]);
+        }
+        printf("\n");
 
+        //pwd (only if pwd is the only argument)
+        if(strcmp(commands[i].command, "pwd") == 0){
+            if(commands[i].argc != 1){
+                fprintf(stderr, "Error: pwd should be the only argument\n");
+                return 1;
+            }
+            return pwd();
+        }
+        //cd (should only take one argument, other if more)
+        if(strcmp(commands[i].command, "cd") == 0){
+            if(commands[i].argc != 2){
+                fprintf(stderr, "Error: cd incorrect number of arguments\n");
+                return 1;
+            }
+            return cd(commands[i].arguments[1]);
+        }
+        if(strcmp(commands[i].command, "which") == 0){
+            if(commands[i].argc == 1) {
+                fprintf(stderr, "Error: which requires a program name \n"); 
+                return 1;
+            }
+            if(commands[i].argc > 2) {
+                fprintf(stderr, "Error: which incorrect number of arguments\n"); 
+                return 1;
+            }
+            char *path = which(commands[i].arguments[1]);
 
-            //pwd (only if pwd is the only argument)
-            if(strcmp(commands[i].command, "pwd") == 0){
-                if(commands[i].argc != 0){
-                    fprintf(stderr, "Error: pwd should be the only argument\n");
-                    return 1;
-                }
-                return pwd();
+            if (path == NULL) {
+                fprintf(stderr, "Program %s not found\n", commands[i].arguments[1]);
+                return 1;
             }
-            //cd (should only take one argument, other if more)
-            if(strcmp(commands[i].command, "cd") == 0){
-                if(commands[i].argc != 1){
-                    fprintf(stderr, "Error: cd incorrect number of arguments\n");
-                    return 1;
-                }
-                return cd(commands[i].arguments[0]);
-            }
-            if(strcmp(commands[i].command, "which") == 0){
-                if(commands[i].argc == 0) {
-                    fprintf(stderr, "Error: which requires a program name \n"); 
-                    return 1;
-                }
-                if(commands[i].argc > 1) {
-                    fprintf(stderr, "Error: which incorrect number of arguments\n"); 
-                    return 1;
-                }
-                char *path = which(commands[i].arguments[0]);
+            printf("%s\n", path);
+            free(path); // free strdup path
+            return 0;
+        }
+        //exit command
+        if(strcmp(commands[i].command, "exit") == 0 && commands[i].argc == 1){
+            exit_mysh(line);
+        }
 
-                if (path == NULL) {
-                    fprintf(stderr, "Program %s not found\n", commands[i].arguments[0]);
-                    return 1;
-                }
-                printf("%s\n", path);
-                free(path); // free strdup path
-                return 0;
-            }
-            //exit command
-            if(strcmp(commands[i].command, "exit") == 0 && commands[i].argc == 1){
-                exit_mysh(line);
-            }
-
-            //Other commands
-            char* path = which(commands[i].command);
-            execv(path, commands[i].arguments);
+        //Other commands
+        char* path = which(commands[i].command);
+        pid_t pid = fork();
+        if (pid == -1) {
+            // Handle error
+        } else if (pid > 0) {
+            // This is the parent process. Wait for the child to finish.
+            int status;
+            waitpid(pid, &status, 0);
+        } else {
             
-            //TODO: MORE COMMANDS / OPTIONS
+            // This is the child process where we execute command
+            execv(path, commands[i].arguments);
+            // If execv returns, there was an error.
+            perror("Command/Program not found");
+            exit(EXIT_FAILURE);
+        }
+        //TODO: MORE COMMANDS / OPTIONS
 
-            //remove return later
-            return 1;
-        }
-        else{
-            return 1;
-        }
+        //remove return later
+        return 1;
     }
-    return 0;
+    return 1;
 }
 
 void handle_error(const char* msg) {
@@ -317,7 +329,7 @@ int then_else_status(char** tokens, int tokc){
 // number of commands
 int set_commands(char** tokens, int tokc){
     int i = 0;
-    int currArgs = -1;
+    int currArgs = 0;
     int comIndex = 0;
 
     while(i < tokc){
@@ -329,7 +341,7 @@ int set_commands(char** tokens, int tokc){
         if(strcmp(tokens[i], "|") == 0 || strcmp(tokens[i], "\n") == 0) {
             commands[comIndex].arguments[currArgs] = NULL;
             comIndex++;
-            currArgs = -1;
+            currArgs = 0;
         }
         else if(strcmp(tokens[i], "<") == 0){
             i++;
@@ -340,10 +352,12 @@ int set_commands(char** tokens, int tokc){
             commands[comIndex].outputFile = tokens[i];
         }
         else{
-            if(currArgs == -1){ 
+            if(currArgs == 0){ 
                 commands[comIndex].command = tokens[i];
                 commands[comIndex].argc = 0;
+                commands[comIndex].arguments[currArgs] = tokens[i];
                 currArgs++;
+                commands[comIndex].argc = currArgs;
             }
             else{
                 commands[comIndex].arguments[currArgs] = tokens[i];
