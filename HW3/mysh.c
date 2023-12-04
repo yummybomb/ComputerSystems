@@ -298,9 +298,9 @@ int process_line(char* line, int lastStatus) {
         //TODO: MORE COMMANDS / OPTIONS
 
         //remove return later
-        return 1;
+        return 0;
     }
-    return 1;
+    return 0;
 }
 
 void handle_error(const char* msg) {
