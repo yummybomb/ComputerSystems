@@ -202,6 +202,23 @@ int process_line(char* line, int lastStatus) {
     int total_commands = set_commands(tokens, tokc);
 
     for (int i = 0; i < total_commands; i++){
+        if (commands[i].inputFile != NULL){
+            int in;
+            if ((in = open(commands[i].inputFile, O_RDONLY)) < 0) {   // open file for reading
+                fprintf(stderr, "error opening file\n");
+            }
+            dup2(in, STDIN_FILENO);
+            close(in);
+        }
+        if (commands[i].outputFile != NULL){       
+            int out;
+            out = creat(commands[i].outputFile, 0640);
+            dup2(out, STDOUT_FILENO);
+            close(out); 
+        }
+        
+
+
         //pwd (only if pwd is the only argument)
         if(strcmp(commands[i].arguments[0], "pwd") == 0){
             if(commands[i].argc != 1){
