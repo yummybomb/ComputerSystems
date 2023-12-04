@@ -84,7 +84,8 @@ void interactive_mode(void) {
     while(1 == 1){
         printf("mysh> ");
         line = read_line();
-        lastStatus = process_line(line, lastStatus);
+        int status = process_line(line, lastStatus);
+        if(status != 2) lastStatus = status;
         free(line);
     }
     return; 
@@ -281,16 +282,17 @@ int then_else_status(char** tokens, int tokc){
     if(tokc == 0) return 0;
     if(strcmp(tokens[0], "then") == 0) {
         if(tokc == 1){
-        fprintf(stderr, "cannot have then or else by itself");
+        fprintf(stderr, "cannot have then or else by itself\n");
         return 1;
         }
-        if(lastStatus == 1) {fprintf(stderr, "then statement failed");return 1;}
+        if(lastStatus == 1) {fprintf(stderr, "then statement failed\n");return 1;}
     }
     if(strcmp(tokens[0], "else") == 0) {
         if(tokc == 1){
-        fprintf(stderr, "cannot have then or else by itself");
+        fprintf(stderr, "cannot have then or else by itself\n");
         return 1;
         }
+        if(lastStatus == 0){fprintf(stderr, "else statement failed\n");return 1;}
     }
     return 0;
 }
