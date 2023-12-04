@@ -38,6 +38,7 @@ int then_else_status(char** tokens, int tokc);
 void get_tokens(char* line , char** tokens, int tokc);
 int count_tokens(char* line);
 void handle_error(const char* msg);
+void set_commands(char** tokens, int tokc);
 //Built-in commands
 int cd(const char* path);
 int pwd(void);
@@ -84,9 +85,6 @@ void interactive_mode(void) {
         printf("mysh> ");
         line = read_line();
         lastStatus = process_line(line, lastStatus);
-        printf("%s", commands[0].arguments[0]);
-        printf("%s", commands[0].arguments[1]);
-        printf(commands[0].arguments[2]);
         free(line);
     }
     return; 
@@ -197,6 +195,8 @@ int process_line(char* line, int lastStatus) {
             }
     }
 
+    set_commands(tokens, tokc);
+
     //File searching
     if(tokens[0][0] == '/'){
         //TODO FILE SEARCHING
@@ -287,7 +287,7 @@ int then_else_status(char** tokens, int tokc){
 
 //Assume that tokc >= 1
 //0 on success, 1 on failure
-int set_commands(char** tokens, int tokc){
+void set_commands(char** tokens, int tokc){
     int i = 0;
     int currArgs = 0;
     int comIndex = 0;
@@ -314,10 +314,10 @@ int set_commands(char** tokens, int tokc){
             commands[comIndex].arguments[currArgs] = tokens[i];
             currArgs++;
             commands[comIndex].argc = currArgs;
-
         }
+        i++;
     }
-    return 0;
+    return;
 }
 
 
