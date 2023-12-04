@@ -329,7 +329,7 @@ int set_commands(char** tokens, int tokc){
         if(strcmp(tokens[i], "|") == 0 || strcmp(tokens[i], "\n") == 0) {
             commands[comIndex].arguments[currArgs] = NULL;
             comIndex++;
-            currArgs = 0;
+            currArgs = -1;
         }
         else if(strcmp(tokens[i], "<") == 0){
             i++;
