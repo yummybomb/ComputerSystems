@@ -203,28 +203,32 @@ int process_line(char* line, int lastStatus) {
     int total_commands = set_commands(tokens, tokc);
 
     for (int i = 0; i < total_commands; i++){
-        //redirection attempt
-        if (commands[i].inputFile){
-            int in;
-            if ((in = open(commands[i].inputFile, O_RDONLY)) < 0) {   // open file for reading
-                fprintf(stderr, "error opening file\n");
-            }
-            dup2(in, STDIN_FILENO);
-            close(in);
-        }
-        if (commands[i].outputFile){       
-            int out;
-            out = creat(commands[i].outputFile, 0640);
-            dup2(out, STDOUT_FILENO);
-            close(out); 
-        }
-
         printf("argc: %d\n", commands[i].argc);
         printf("argv: ");
         for (int j = 0; j < commands[i].argc+1; j++){
             printf("%s ", commands[i].arguments[j]);
         }
         printf("\n");
+        //redirection attempt
+        int temp_in = -1;
+        if (commands[i].inputFile){
+            int in;
+            if ((in = open(commands[i].inputFile, O_RDONLY)) < 0) {  
+                fprintf(stderr, "error opening file\n");
+            }
+            temp_in = dup(STDIN_FILENO); 
+            dup2(in, STDIN_FILENO);
+            close(in);
+        }
+        int temp_out = -1;
+        if (commands[i].outputFile){       
+            int out;
+            out = creat(commands[i].outputFile, 0640);
+            temp_out = dup(STDOUT_FILENO); 
+            dup2(out, STDOUT_FILENO);
+            close(out); 
+        }
+
 
         //pwd (only if pwd is the only argument)
         if(strcmp(commands[i].command, "pwd") == 0){
@@ -232,7 +236,7 @@ int process_line(char* line, int lastStatus) {
                 fprintf(stderr, "Error: pwd should be the only argument\n");
                 return 1;
             }
-            return pwd();
+            pwd();
         }
         //cd (should only take one argument, other if more)
         if(strcmp(commands[i].command, "cd") == 0){
@@ -240,7 +244,7 @@ int process_line(char* line, int lastStatus) {
                 fprintf(stderr, "Error: cd incorrect number of arguments\n");
                 return 1;
             }
-            return cd(commands[i].arguments[1]);
+            cd(commands[i].arguments[1]);
         }
         if(strcmp(commands[i].command, "which") == 0){
             if(commands[i].argc == 1) {
@@ -259,7 +263,6 @@ int process_line(char* line, int lastStatus) {
             }
             printf("%s\n", path);
             free(path); // free strdup path
-            return 0;
         }
         //exit command
         if(strcmp(commands[i].command, "exit") == 0 && commands[i].argc == 1){
@@ -281,7 +284,16 @@ int process_line(char* line, int lastStatus) {
             execv(path, commands[i].arguments);
             // If execv returns, there was an error.
             perror("Command/Program not found");
-            exit(EXIT_FAILURE);
+        }
+
+        // Restore original STDIN and STDOUT
+        if(temp_in != -1) {
+            dup2(temp_in, STDIN_FILENO);
+            close(temp_in);
+        }
+        if(temp_out != -1) {
+            dup2(temp_out, STDOUT_FILENO); 
+            close(temp_out);
         }
         //TODO: MORE COMMANDS / OPTIONS
 
