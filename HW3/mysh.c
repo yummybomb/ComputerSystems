@@ -299,7 +299,7 @@ int then_else_status(char** tokens, int tokc){
 // number of commands
 int set_commands(char** tokens, int tokc){
     int i = 0;
-    int currArgs = 0;
+    int currArgs = -1;
     int comIndex = 0;
 
     while(i < tokc){
@@ -311,7 +311,7 @@ int set_commands(char** tokens, int tokc){
         if(strcmp(tokens[i], "|") == 0 || strcmp(tokens[i], "\n") == 0) {
             commands[comIndex].arguments[currArgs] = NULL;
             comIndex++;
-            currArgs = 0;
+            currArgs = -1;
         }
         else if(strcmp(tokens[i], "<") == 0){
             i++;
@@ -322,7 +322,7 @@ int set_commands(char** tokens, int tokc){
             commands[comIndex].outputFile = tokens[i];
         }
         else{
-            if(currArgs == 0) commands[comIndex].command = tokens[i];
+            if(currArgs == -1) {commands[comIndex].command = tokens[i]; currArgs++;}
             else{
                 commands[comIndex].arguments[currArgs] = tokens[i];
                 currArgs++;
