@@ -84,6 +84,9 @@ void interactive_mode(void) {
         printf("mysh> ");
         line = read_line();
         lastStatus = process_line(line, lastStatus);
+        printf("%s", commands[0].arguments[0]);
+        printf("%s", commands[0].arguments[1]);
+        printf(commands[0].arguments[2]);
         free(line);
     }
     return; 
@@ -203,30 +206,30 @@ int process_line(char* line, int lastStatus) {
     //pwd (only if pwd is the only argument)
     if(strcmp(tokens[0], "pwd") == 0){
         if(tokc == 1){return pwd();}
-        printf("pwd should be the only argument");
+        fprintf(stderr, "pwd should be the only argument");
         return 1;
     }
 
     //cd (should only take one argument, other if more)
     if(strcmp(tokens[0], "cd") == 0){
         if(tokc == 2) return cd(tokens[1]);
-        else if(tokc == 1) printf("cd requires a path\n");
-        else printf("incorrect number of arguments\n");
+        else if(tokc == 1) fprintf(stderr, "cd requires a path\n");
+        else fprintf(stderr, "incorrect number of arguments\n");
         return 1;
     }
     // which
     if(strcmp(tokens[0], "which") == 0){
         if(tokc == 1) {
-            printf("which requires a program name \n"); 
+            fprintf(stderr, "which requires a program name \n"); 
             return 1;
         }
         if(tokc > 2) {
-            printf("incorrect number of arguments\n"); 
+            fprintf(stderr, "Incorrect number of arguments\n"); 
             return 1;
         }
         char *path = which(tokens[1]);
         if (path == NULL) {
-            printf("Program %s not found\n", tokens[1]);
+            fprintf(stderr, "Program %s not found\n", tokens[1]);
             return 1;
         }
         printf("%s\n", path);
@@ -236,7 +239,7 @@ int process_line(char* line, int lastStatus) {
 
     if(strcmp(tokens[0], "echo") == 0){
         if (tokc == 1) {
-            printf("echo requires a program name \n"); 
+            fprintf(stderr, "echo requires a program name \n"); 
             return 1;
         }
         echo(tokens, tokc);
@@ -251,7 +254,7 @@ int process_line(char* line, int lastStatus) {
         exit_mysh(line);
     }
     
-    printf("Not a valid command\n");
+    fprintf(stderr, "Not a valid command\n");
     return 1;
 
 }
@@ -274,7 +277,7 @@ bool is_empty_or_whitespace(const char* str) {
 int then_else_status(char** tokens, int tokc){
     if(tokc == 0) return 0;
     if(tokc == 1){
-        printf("cannot have then or else by itself");
+        fprintf(stderr, "cannot have then or else by itself");
         return 1;
     }
     if(strcmp(tokens[0], "then") == 0 && lastStatus == 1) return 1;
