@@ -342,6 +342,7 @@ int set_commands(char** tokens, int tokc){
         else{
             if(currArgs == -1){ 
                 commands[comIndex].command = tokens[i];
+                commands[comIndex].argc = 0;
                 currArgs++;
             }
             else{
