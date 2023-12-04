@@ -8,9 +8,22 @@
 #include <string.h>
 #include <unistd.h>
 
+//structs
+typedef struct Command {
+    int argc;
+    char* command;
+    char* arguments[4096];
+    char* inputFile;
+    char* outputFile;
+    bool isBackground;
+} Command;
+
+
 //global variables
 //exit status (1 is fail, 0 is success) of last command.
 int lastStatus = 0;
+Command commands[100];
+int comC;
 
 #define INITIAL_BUFFER_SIZE 256
 // Function prototypes
@@ -31,15 +44,6 @@ int pwd(void);
 char* which(const char* progName);
 void exit_mysh(char* line);
 void echo(char** arguments, int argc);
-
-typedef struct Command {
-    int argc;
-    char* command;
-    char** arguments;
-    char* inputFile;
-    char* outputFile;
-    bool isBackground;
-} Command;
 
 int main(int argc, char* argv[]) {
     if (argc > 2) {
@@ -108,6 +112,7 @@ char *read_line(){
             }
         }
         c = getc(stdin);
+        if(c == '|') comC++;
         if(c == '|' || c == '<' || c == '>'){line[contentSize++] = ' '; line[contentSize++] = (char)c; line[contentSize++] = ' ';}
         else line[contentSize++] = (char)c;
 
@@ -172,10 +177,20 @@ void process_line(char* line, int lastStatus) {
 
     //These 3 lines are used to get a string array 'tokens,' which stores all tokens of 'line'
     int tokc = count_tokens(line);
-    char *tokens[tokc];
+    char *tokens[tokc+1];
     get_tokens(line, tokens, tokc);
     //Whitespace or empty case
     if (tokc == 0) return;
+
+    if(strcmp(tokens[0], "|") == 0){perror("Cannot have pipe in the beginning"); return;}
+    if(strcmp(tokens[tokc-1], "|") == 0){perror("Cannot have pipe at end"); return;}
+    if(strcmp(tokens[tokc-1], "<") == 0 || strcmp(tokens[tokc-1], ">") == 0){perror("cannot have redirect at end"); return;}
+
+    for(int i = 1; i < tokc; i++){
+        if ((tokens[i] == tokens[i-1]) && (strcmp(tokens[i], "<") == 0 || strcmp(tokens[i],">") == 0 || strcmp(tokens[i], "|") == 0)) {
+            perror("Cannot have a double redirect/pipe");
+            }
+    }
 
     //File searching
     if(tokens[0][0] == '/'){
@@ -272,6 +287,42 @@ int then_else_status(char** tokens, int tokc){
     return 0;
 }
 
+//Assume that tokc >= 1
+//0 on success, 1 on failure
+int set_commands(char** tokens, int tokc){
+    int i = 0;
+    int currArgs = 0;
+    int comIndex = 0;
+
+    while(i < tokc){
+        if(i == 0 && (strcmp(tokens[i], "then") == 0 || strcmp(tokens[i], "else") == 0)) {
+            i++;
+            continue;
+        }
+        
+        if(strcmp(tokens[i], "|") == 0) {
+            comIndex++;
+            currArgs = 0;
+        }
+        else if(strcmp(tokens[i], "<") == 0){
+            i++;
+            commands[comIndex].inputFile = tokens[i];
+        }
+        else if(strcmp(tokens[i], ">") == 0){
+            i++;
+            commands[comIndex].outputFile = tokens[i];
+        }
+        else{
+            commands[comIndex].arguments[currArgs] = tokens[i];
+            currArgs++;
+            commands[comIndex].argc = currArgs;
+
+        }
+    }
+    return 0;
+}
+
+
 //get tokens takes in the string user input, a char** to store the tokens in, and tokc (how many tokens)
 //there are no returns: the array tokens is modified to store all the tokens present in 'line'
 void get_tokens(char* line , char** tokens, int tokc){
@@ -285,6 +336,7 @@ void get_tokens(char* line , char** tokens, int tokc){
         }
         token = strtok(NULL,  " ");
     }
+    tokens[index] = NULL;
 }
 
 //This function counts how many tokens is in a string line (excludes whitespace)
