@@ -202,35 +202,53 @@ int process_line(char* line, int lastStatus) {
     int total_commands = set_commands(tokens, tokc);
 
     for (int i = 0; i < total_commands; i++){
+        //redirection attempt
+        if (commands[i].inputFile != NULL){
+            int in;
+            if ((in = open(commands[i].inputFile, O_RDONLY)) < 0) {   // open file for reading
+                fprintf(stderr, "error opening file\n");
+            }
+            dup2(in, STDIN_FILENO);
+            close(in);
+        }
+        if (commands[i].outputFile != NULL){       
+            int out;
+            out = creat(commands[i].outputFile, 0640);
+            dup2(out, STDOUT_FILENO);
+            close(out); 
+        }
+
+
+
         //pwd (only if pwd is the only argument)
-        if(strcmp(commands[i].arguments[0], "pwd") == 0){
-            if(commands[i].argc != 1){
+        if(strcmp(commands[i].command, "pwd") == 0){
+            if(commands[i].argc != 0){
                 fprintf(stderr, "Error: pwd should be the only argument\n");
                 return 1;
             }
             return pwd();
         }
          //cd (should only take one argument, other if more)
-        if(strcmp(commands[i].arguments[0], "cd") == 0){
-            if(commands[i].argc != 2){
+        if(strcmp(commands[i].command, "cd") == 0){
+            if(commands[i].argc != 1){
                 fprintf(stderr, "Error: cd incorrect number of arguments\n");
                 return 1;
             }
-            return cd(commands[i].arguments[1]);
+            return cd(commands[i].arguments[0]);
         }
-        if(strcmp(commands[i].arguments[0], "which") == 0){
-            if(commands[i].argc == 1) {
+        if(strcmp(commands[i].command, "which") == 0){
+            if(commands[i].argc == 0) {
                 fprintf(stderr, "Error: which requires a program name \n"); 
                 return 1;
             }
-            if(commands[i].argc > 2) {
+            if(commands[i].argc > 1) {
                 fprintf(stderr, "Error: which incorrect number of arguments\n"); 
                 return 1;
             }
-            char *path = which(commands[i].arguments[1]);
+            char *path = which(commands[i].arguments[0]);
 
             if (path == NULL) {
-                fprintf(stderr, "Program %s not found\n", commands[i].arguments[1]);
+                fprintf(stderr, "Program %s not found\n", commands[i].arguments[0]);
                 return 1;
             }
             printf("%s\n", path);
@@ -238,8 +256,8 @@ int process_line(char* line, int lastStatus) {
             return 0;
         }
 
-        if(strcmp(commands[i].arguments[0], "echo") == 0){
-            if (commands[i].argc == 1) {
+        if(strcmp(commands[i].command, "echo") == 0){
+            if (commands[i].argc == 0) {
                 fprintf(stderr, "echo requires a program name \n"); 
                 return 1;
             }
@@ -250,7 +268,7 @@ int process_line(char* line, int lastStatus) {
 
 
         //exit command
-        if(strcmp(commands[i].arguments[0], "exit") == 0 && commands[i].argc == 1){
+        if(strcmp(commands[i].command, "exit") == 0 && commands[i].argc == 1){
             exit_mysh(line);
         }
         fprintf(stderr, "Not a valid command\n");
@@ -300,6 +318,7 @@ int then_else_status(char** tokens, int tokc){
 int set_commands(char** tokens, int tokc){
     int i = 0;
     int currArgs = -1;
+    int currArgs = -1;
     int comIndex = 0;
 
     while(i < tokc){
@@ -322,7 +341,10 @@ int set_commands(char** tokens, int tokc){
             commands[comIndex].outputFile = tokens[i];
         }
         else{
-            if(currArgs == -1) {commands[comIndex].command = tokens[i]; currArgs++;}
+            if(currArgs == -1){ 
+                commands[comIndex].command = tokens[i];
+                currArgs++;
+            }
             else{
                 commands[comIndex].arguments[currArgs] = tokens[i];
                 currArgs++;
@@ -419,7 +441,7 @@ char* which(const char *progName) {
 }
 
 void echo(char** arguments, int argc){
-    for(int i = 1; i < argc; i++){
+    for(int i = 0; i < argc; i++){
         printf("%s ", arguments[i]);
     }
     printf("\n");
