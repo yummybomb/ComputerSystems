@@ -228,8 +228,6 @@ int process_line(char* line, int lastStatus) {
             dup2(out, STDOUT_FILENO);
             close(out); 
         }
-
-
         //pwd (only if pwd is the only argument)
         if(strcmp(commands[i].command, "pwd") == 0){
             if(commands[i].argc != 1){
@@ -239,14 +237,14 @@ int process_line(char* line, int lastStatus) {
             pwd();
         }
         //cd (should only take one argument, other if more)
-        if(strcmp(commands[i].command, "cd") == 0){
+        else if(strcmp(commands[i].command, "cd") == 0){
             if(commands[i].argc != 2){
                 fprintf(stderr, "Error: cd incorrect number of arguments\n");
                 return 1;
             }
             cd(commands[i].arguments[1]);
         }
-        if(strcmp(commands[i].command, "which") == 0){
+        else if(strcmp(commands[i].command, "which") == 0){
             if(commands[i].argc == 1) {
                 fprintf(stderr, "Error: which requires a program name \n"); 
                 return 1;
@@ -265,27 +263,26 @@ int process_line(char* line, int lastStatus) {
             free(path); // free strdup path
         }
         //exit command
-        if(strcmp(commands[i].command, "exit") == 0 && commands[i].argc == 1){
+        else if(strcmp(commands[i].command, "exit") == 0 && commands[i].argc == 1){
             exit_mysh(line);
         }
-
         //Other commands
-        char* path = which(commands[i].command);
-        pid_t pid = fork();
-        if (pid == -1) {
-            // Handle error
-        } else if (pid > 0) {
-            // This is the parent process. Wait for the child to finish.
-            int status;
-            waitpid(pid, &status, 0);
-        } else {
-            
-            // This is the child process where we execute command
-            execv(path, commands[i].arguments);
-            // If execv returns, there was an error.
-            perror("Command/Program not found");
+        else {
+            char* path = which(commands[i].command);
+            pid_t pid = fork();
+            if (pid == -1) {
+                // Handle error
+            } else if (pid > 0) {
+                // This is the parent
+                int status;
+                waitpid(pid, &status, 0);
+            } else {
+                // This is the child
+                execv(path, commands[i].arguments);
+                perror("Command/Program not found");
+                return 1;
+            }
         }
-
         // Restore original STDIN and STDOUT
         if(temp_in != -1) {
             dup2(temp_in, STDIN_FILENO);
@@ -296,8 +293,6 @@ int process_line(char* line, int lastStatus) {
             close(temp_out);
         }
         //TODO: MORE COMMANDS / OPTIONS
-
-        //remove return later
         return 0;
     }
     return 0;
@@ -429,8 +424,6 @@ int cd(const char* path){
     }
     else return 0;
 }
-
-
 //Prints the current working directory to StdOut
 //Returns 0 success, 1 on failure
 int pwd(){
