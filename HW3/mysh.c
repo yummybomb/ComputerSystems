@@ -38,7 +38,7 @@ int then_else_status(char** tokens, int tokc);
 void get_tokens(char* line , char** tokens, int tokc);
 int count_tokens(char* line);
 void handle_error(const char* msg);
-void set_commands(char** tokens, int tokc);
+int set_commands(char** tokens, int tokc);
 //Built-in commands
 int cd(const char* path);
 int pwd(void);
@@ -199,68 +199,66 @@ int process_line(char* line, int lastStatus) {
             }
     }
 
-    set_commands(tokens, tokc);
+    int total_commands = set_commands(tokens, tokc);
 
-    //File searching
-    if(tokens[0][0] == '/'){
-        //TODO FILE SEARCHING
-        return 0;
-    }
+    for (int i = 0; i < total_commands; i++){
+        //pwd (only if pwd is the only argument)
+        if(strcmp(commands[i].arguments[0], "pwd") == 0){
+            if(commands[i].argc != 1){
+                fprintf(stderr, "Error: pwd should be the only argument\n");
+                return 1;
+            }
+            return pwd();
+        }
+         //cd (should only take one argument, other if more)
+        if(strcmp(commands[i].arguments[0], "cd") == 0){
+            if(commands[i].argc != 2){
+                fprintf(stderr, "Error: cd incorrect number of arguments\n");
+                return 1;
+            }
+            return cd(commands[i].arguments[1]);
+        }
+        if(strcmp(commands[i].arguments[0], "which") == 0){
+            if(commands[i].argc == 1) {
+                fprintf(stderr, "Error: which requires a program name \n"); 
+                return 1;
+            }
+            if(commands[i].argc > 2) {
+                fprintf(stderr, "Error: which incorrect number of arguments\n"); 
+                return 1;
+            }
+            char *path = which(commands[i].arguments[1]);
 
-    //pwd (only if pwd is the only argument)
-    if(strcmp(tokens[0], "pwd") == 0){
-        if(tokc == 1){return pwd();}
-        fprintf(stderr, "pwd should be the only argument");
+            if (path == NULL) {
+                fprintf(stderr, "Program %s not found\n", commands[i].arguments[1]);
+                return 1;
+            }
+            printf("%s\n", path);
+            free(path); // free strdup path
+            return 0;
+        }
+
+        if(strcmp(commands[i].arguments[0], "echo") == 0){
+            if (commands[i].argc == 1) {
+                fprintf(stderr, "echo requires a program name \n"); 
+                return 1;
+            }
+            echo(commands[i].arguments, commands[i].argc);
+            return 0;
+        }
+         //TODO: MORE COMMANDS / OPTIONS
+
+
+        //exit command
+        if(strcmp(commands[i].arguments[0], "exit") == 0 && commands[i].argc == 1){
+            exit_mysh(line);
+        }
+        fprintf(stderr, "Not a valid command\n");
+
+        //remove return later
         return 1;
     }
-
-    //cd (should only take one argument, other if more)
-    if(strcmp(tokens[0], "cd") == 0){
-        if(tokc == 2) return cd(tokens[1]);
-        else if(tokc == 1) fprintf(stderr, "cd requires a path\n");
-        else fprintf(stderr, "incorrect number of arguments\n");
-        return 1;
-    }
-    // which
-    if(strcmp(tokens[0], "which") == 0){
-        if(tokc == 1) {
-            fprintf(stderr, "which requires a program name \n"); 
-            return 1;
-        }
-        if(tokc > 2) {
-            fprintf(stderr, "Incorrect number of arguments\n"); 
-            return 1;
-        }
-        char *path = which(tokens[1]);
-        if (path == NULL) {
-            fprintf(stderr, "Program %s not found\n", tokens[1]);
-            return 1;
-        }
-        printf("%s\n", path);
-        free(path); // free strdup path
-        return 0;
-    }
-
-    if(strcmp(tokens[0], "echo") == 0){
-        if (tokc == 1) {
-            fprintf(stderr, "echo requires a program name \n"); 
-            return 1;
-        }
-        echo(tokens, tokc);
-        return 0;
-    }
-
-    //TODO: MORE COMMANDS / OPTIONS
-
-
-    //exit command
-    if(strcmp(tokens[0], "exit") == 0 && tokc == 1){
-        exit_mysh(line);
-    }
-    
-    fprintf(stderr, "Not a valid command\n");
-    return 1;
-
+    return 0;
 }
 
 void handle_error(const char* msg) {
@@ -298,8 +296,8 @@ int then_else_status(char** tokens, int tokc){
 }
 
 //Assume that tokc >= 1
-//0 on success, 1 on failure
-void set_commands(char** tokens, int tokc){
+// number of commands
+int set_commands(char** tokens, int tokc){
     int i = 0;
     int currArgs = 0;
     int comIndex = 0;
@@ -310,7 +308,7 @@ void set_commands(char** tokens, int tokc){
             continue;
         }
         
-        if(strcmp(tokens[i], "|") == 0) {
+        if(strcmp(tokens[i], "|") == 0 || strcmp(tokens[i], "\n") == 0) {
             comIndex++;
             currArgs = 0;
         }
@@ -329,7 +327,7 @@ void set_commands(char** tokens, int tokc){
         }
         i++;
     }
-    return;
+    return comIndex+1;
 }
 
 
