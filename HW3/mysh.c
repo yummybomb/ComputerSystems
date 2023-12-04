@@ -183,7 +183,7 @@ int process_line(char* line, int lastStatus) {
     int tokc = count_tokens(line);
     char *tokens[tokc+1];
     get_tokens(line, tokens, tokc);
-    //Whitespace or empty case
+    //ERROR CHECKING
     if (tokc == 0) return 2;
 
     int status = then_else_status(tokens, tokc);
@@ -200,16 +200,19 @@ int process_line(char* line, int lastStatus) {
             }
     }
 
+    //LOGIC HERE
     int total_commands = set_commands(tokens, tokc);
 
     for (int i = 0; i < total_commands; i++){
+        //DEBUG PRINTS
         printf("argc: %d\n", commands[i].argc);
         printf("argv: ");
         for (int j = 0; j < commands[i].argc+1; j++){
             printf("%s ", commands[i].arguments[j]);
         }
         printf("\n");
-        //redirection attempt
+
+        //REDIRECTION attempt
         int temp_in = -1;
         if (commands[i].inputFile){
             int in;
@@ -228,6 +231,7 @@ int process_line(char* line, int lastStatus) {
             dup2(out, STDOUT_FILENO);
             close(out); 
         }
+        //COMMANDS
         //pwd (only if pwd is the only argument)
         if(strcmp(commands[i].command, "pwd") == 0){
             if(commands[i].argc != 1){
@@ -283,7 +287,7 @@ int process_line(char* line, int lastStatus) {
                 return 1;
             }
         }
-        // Restore original STDIN and STDOUT
+        // END OF REDIRECTION IF ANY OPERATORS
         if(temp_in != -1) {
             dup2(temp_in, STDIN_FILENO);
             close(temp_in);
@@ -317,17 +321,23 @@ int then_else_status(char** tokens, int tokc){
     if(tokc == 0) return 0;
     if(strcmp(tokens[0], "then") == 0) {
         if(tokc == 1){
-        fprintf(stderr, "cannot have then or else by itself\n");
+            fprintf(stderr, "cannot have then or else by itself\n");
         return 1;
         }
-        if(lastStatus == 1) {fprintf(stderr, "then conditional failed\n");return 1;}
+        if(lastStatus == 1) {
+            fprintf(stderr, "then conditional failed\n");
+            return 1;
+        }
     }
     if(strcmp(tokens[0], "else") == 0) {
         if(tokc == 1){
-        fprintf(stderr, "cannot have then or else by itself\n");
-        return 1;
+            fprintf(stderr, "cannot have then or else by itself\n");
+            return 1;
         }
-        if(lastStatus == 0){fprintf(stderr, "else conditional failed\n");return 1;}
+        if(lastStatus == 0){
+            fprintf(stderr, "else conditional failed\n");
+            return 1;
+        }
     }
     return 0;
 }
