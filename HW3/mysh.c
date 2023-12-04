@@ -318,7 +318,6 @@ int then_else_status(char** tokens, int tokc){
 int set_commands(char** tokens, int tokc){
     int i = 0;
     int currArgs = -1;
-    int currArgs = -1;
     int comIndex = 0;
 
     while(i < tokc){
