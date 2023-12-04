@@ -33,13 +33,13 @@ void interactive_mode(void);
 void read_file(FILE* file);
 char *read_line(void);
 bool is_empty_or_whitespace(const char* str);
-    void process_line(char* line, int lastStatus);
+int process_line(char* line, int lastStatus);
 int then_else_status(char** tokens, int tokc);
 void get_tokens(char* line , char** tokens, int tokc);
 int count_tokens(char* line);
 void handle_error(const char* msg);
 //Built-in commands
-void cd(const char* path);
+int cd(const char* path);
 int pwd(void);
 char* which(const char* progName);
 void exit_mysh(char* line);
@@ -83,7 +83,7 @@ void interactive_mode(void) {
     while(1 == 1){
         printf("mysh> ");
         line = read_line();
-        process_line(line, lastStatus);
+        lastStatus = process_line(line, lastStatus);
         free(line);
     }
     return; 
@@ -173,78 +173,74 @@ void read_file(FILE* file) {
     free(line);
 }
 
-void process_line(char* line, int lastStatus) {
+//0 is successful, 1 is failure, 2 if empty
+int process_line(char* line, int lastStatus) {
 
     //These 3 lines are used to get a string array 'tokens,' which stores all tokens of 'line'
     int tokc = count_tokens(line);
     char *tokens[tokc+1];
     get_tokens(line, tokens, tokc);
     //Whitespace or empty case
-    if (tokc == 0) return;
+    if (tokc == 0) return 2;
 
-    if(strcmp(tokens[0], "|") == 0){perror("Cannot have pipe in the beginning"); return;}
-    if(strcmp(tokens[tokc-1], "|") == 0){perror("Cannot have pipe at end"); return;}
-    if(strcmp(tokens[tokc-1], "<") == 0 || strcmp(tokens[tokc-1], ">") == 0){perror("cannot have redirect at end"); return;}
+    if(strcmp(tokens[0], "|") == 0){perror("Cannot have pipe in the beginning"); return 1;}
+    if(strcmp(tokens[tokc-1], "|") == 0){perror("Cannot have pipe at end"); return 1;}
+    if(strcmp(tokens[tokc-1], "<") == 0 || strcmp(tokens[tokc-1], ">") == 0){perror("cannot have redirect at end"); return 1;}
 
     for(int i = 1; i < tokc; i++){
         if ((strcmp(tokens[i], tokens[i-1]) == 0) && (strcmp(tokens[i], "<") == 0 || strcmp(tokens[i],">") == 0 || strcmp(tokens[i], "|") == 0)) {
             fprintf(stderr, "Cannot have a double redirect/pipe");
+            return 1;
             }
     }
 
     //File searching
     if(tokens[0][0] == '/'){
         //TODO FILE SEARCHING
-        return;
+        return 0;
     }
 
     //pwd (only if pwd is the only argument)
     if(strcmp(tokens[0], "pwd") == 0){
-        if(tokc == 1){pwd(); return;}
-        lastStatus = 1;
+        if(tokc == 1){return pwd();}
         printf("pwd should be the only argument");
-        return;
+        return 1;
     }
 
     //cd (should only take one argument, other if more)
     if(strcmp(tokens[0], "cd") == 0){
-        if(tokc == 2) cd(tokens[1]);
+        if(tokc == 2) return cd(tokens[1]);
         else if(tokc == 1) printf("cd requires a path\n");
         else printf("incorrect number of arguments\n");
-        lastStatus = 1;
-        return;
+        return 1;
     }
     // which
     if(strcmp(tokens[0], "which") == 0){
         if(tokc == 1) {
             printf("which requires a program name \n"); 
-            lastStatus = 1;
-            return;
+            return 1;
         }
         if(tokc > 2) {
             printf("incorrect number of arguments\n"); 
-            lastStatus = 1;
-            return;
+            return 1;
         }
         char *path = which(tokens[1]);
         if (path == NULL) {
             printf("Program %s not found\n", tokens[1]);
-            lastStatus = 1;
-            return;
+            return 1;
         }
         printf("%s\n", path);
         free(path); // free strdup path
-        return;
+        return 0;
     }
 
     if(strcmp(tokens[0], "echo") == 0){
         if (tokc == 1) {
             printf("echo requires a program name \n"); 
-            lastStatus = 1;
-            return;
+            return 1;
         }
         echo(tokens, tokc);
-        return;
+        return 0;
     }
 
     //TODO: MORE COMMANDS / OPTIONS
@@ -256,8 +252,7 @@ void process_line(char* line, int lastStatus) {
     }
     
     printf("Not a valid command\n");
-    lastStatus = 1;
-    return;
+    return 1;
 
 }
 
@@ -360,18 +355,18 @@ int count_tokens(char* original_line){
 //Change working directory
 //path argument is a path to a directory
 //Prints an error and fails if it is given the wrong number of args, or if chdir() fails
-void cd(const char* path){
+int cd(const char* path){
     int status = chdir(path);
     if(status != 0){
-        lastStatus = 1;
         perror("could not change directory to specified path");
+        return 1;
     }
-    else lastStatus = 0;
+    else return 0;
 }
 
 
 //Prints the current working directory to StdOut
-//Returns 0 on error and 1 on success
+//Returns 0 success, 1 on failure
 int pwd(){
     char cwd[PATH_MAX];
 
@@ -379,12 +374,10 @@ int pwd(){
         printf("%s\n", cwd);
     }
     else{
-        lastStatus = 1;
         perror("Could not get current working directory");
-        return 0;
+        return 1;
     }
-    lastStatus = 0;
-    return 1;
+    return 0;
 
 }
 
@@ -412,7 +405,6 @@ void echo(char** arguments, int argc){
         printf("%s ", arguments[i]);
     }
     printf("\n");
-    lastStatus = 0;
 }
 
 void exit_mysh(char* line){
