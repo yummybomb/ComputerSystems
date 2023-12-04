@@ -188,9 +188,9 @@ int process_line(char* line, int lastStatus) {
     int status = then_else_status(tokens, tokc);
     if(status == 1) return 1;
 
-    if(strcmp(tokens[0], "|") == 0){perror("Cannot have pipe in the beginning"); return 1;}
-    if(strcmp(tokens[tokc-1], "|") == 0){perror("Cannot have pipe at end"); return 1;}
-    if(strcmp(tokens[tokc-1], "<") == 0 || strcmp(tokens[tokc-1], ">") == 0){perror("cannot have redirect at end"); return 1;}
+    if(strcmp(tokens[0], "|") == 0){fprintf(stderr, "Cannot have pipe in the beginning\n"); return 1;}
+    if(strcmp(tokens[tokc-1], "|") == 0){fprintf(stderr, "Cannot have pipe at end\n"); return 1;}
+    if(strcmp(tokens[tokc-1], "<") == 0 || strcmp(tokens[tokc-1], ">") == 0){fprintf(stderr, "cannot have redirect at end\n"); return 1;}
 
     for(int i = 1; i < tokc; i++){
         if ((strcmp(tokens[i], tokens[i-1]) == 0) && (strcmp(tokens[i], "<") == 0 || strcmp(tokens[i],">") == 0 || strcmp(tokens[i], "|") == 0)) {
