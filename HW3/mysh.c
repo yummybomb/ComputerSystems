@@ -183,6 +183,9 @@ int process_line(char* line, int lastStatus) {
     //Whitespace or empty case
     if (tokc == 0) return 2;
 
+    int status = then_else_status(tokens, tokc);
+    if(status == 1) return 1;
+
     if(strcmp(tokens[0], "|") == 0){perror("Cannot have pipe in the beginning"); return 1;}
     if(strcmp(tokens[tokc-1], "|") == 0){perror("Cannot have pipe at end"); return 1;}
     if(strcmp(tokens[tokc-1], "<") == 0 || strcmp(tokens[tokc-1], ">") == 0){perror("cannot have redirect at end"); return 1;}
@@ -273,12 +276,20 @@ bool is_empty_or_whitespace(const char* str) {
 //0 is success, 1 is failure
 int then_else_status(char** tokens, int tokc){
     if(tokc == 0) return 0;
-    if(tokc == 1){
-        printf("cannot have then or else by itself");
+    if(strcmp(tokens[0], "then") == 0) {
+        if(tokc == 1){
+        fprintf(stderr, "cannot have then or else by itself");
         return 1;
+        }
+        if(lastStatus == 1) {fprintf(stderr, "then statement failed");return 1;}
     }
-    if(strcmp(tokens[0], "then") == 0 && lastStatus == 1) return 1;
-    if(strcmp(tokens[0], "else") == 0 && lastStatus == 0) return 1;
+    if(strcmp(tokens[0], "else") == 0) {
+        if(tokc == 1){
+        fprintf(stderr, "cannot have then or else by itself");
+        return 1;
+        }
+        if(lastStatus == 0) {fprintf(stderr, "else statement failed"); return 1;}
+    }
     return 0;
 }
 
