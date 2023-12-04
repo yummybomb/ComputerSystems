@@ -309,6 +309,7 @@ int set_commands(char** tokens, int tokc){
         }
         
         if(strcmp(tokens[i], "|") == 0 || strcmp(tokens[i], "\n") == 0) {
+            commands[comIndex].arguments[currArgs] = NULL;
             comIndex++;
             currArgs = 0;
         }
@@ -321,12 +322,16 @@ int set_commands(char** tokens, int tokc){
             commands[comIndex].outputFile = tokens[i];
         }
         else{
-            commands[comIndex].arguments[currArgs] = tokens[i];
-            currArgs++;
-            commands[comIndex].argc = currArgs;
+            if(currArgs == 0) commands[comIndex].command = tokens[i];
+            else{
+                commands[comIndex].arguments[currArgs] = tokens[i];
+                currArgs++;
+                commands[comIndex].argc = currArgs;
+            }
         }
         i++;
     }
+    commands[comIndex].arguments[currArgs] = NULL;
     return comIndex+1;
 }
 
@@ -425,3 +430,5 @@ void exit_mysh(char* line){
     free(line);
     exit(1);
 }
+
+//redirection
