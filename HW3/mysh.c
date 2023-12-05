@@ -254,70 +254,66 @@ int process_line(char* line, int lastStatus) {
 }
 
 int run_cmd(char* line, int i){
-    //COMMANDS
-    //pwd (only if pwd is the only argument)
-    if(strcmp(commands[i].command, "pwd") == 0){
-        if(commands[i].argc != 1){
-            fprintf(stderr, "Error: pwd should be the only argument\n");
-            return 1;
+    pid_t pid = fork();
+    if (pid == -1) {
+        // Handle error
+    } else if (pid > 0) {
+        // This is the parent
+        int status;
+        waitpid(pid, &status, 0);
+    } else {
+        // This is the child
+        if(strcmp(commands[i].command, "pwd") == 0){
+            if(commands[i].argc != 1){
+                fprintf(stderr, "Error: pwd should be the only argument\n");
+                exit(1);
+            }
+            pwd();
         }
-        pwd();
-    }
-    //cd (should only take one argument, other if more)
-    else if(strcmp(commands[i].command, "cd") == 0){
-        if(commands[i].argc != 2){
-            fprintf(stderr, "Error: cd incorrect number of arguments\n");
-            return 1;
+        else if(strcmp(commands[i].command, "cd") == 0){
+            if(commands[i].argc != 2){
+                fprintf(stderr, "Error: cd incorrect number of arguments\n");
+                exit(1);
+            }
+            cd(commands[i].arguments[1]);
         }
-        cd(commands[i].arguments[1]);
-    }
-    else if(strcmp(commands[i].command, "which") == 0){
-        if(commands[i].argc == 1) {
-            fprintf(stderr, "Error: which requires a program name \n"); 
-            return 1;
-        }
-        if(commands[i].argc > 2) {
-            fprintf(stderr, "Error: which incorrect number of arguments\n"); 
-            return 1;
-        }
-        char *path = which(commands[i].arguments[1]);
+        else if(strcmp(commands[i].command, "which") == 0){
+            if(commands[i].argc == 1) {
+                fprintf(stderr, "Error: which requires a program name \n"); 
+                exit(1);
+            }
+            if(commands[i].argc > 2) {
+                fprintf(stderr, "Error: which incorrect number of arguments\n"); 
+                exit(1);
+            }
+            char *path = which(commands[i].arguments[1]);
 
-        if (path == NULL) {
-            fprintf(stderr, "Program %s not found\n", commands[i].arguments[1]);
-            return 1;
+            if (path == NULL) {
+                fprintf(stderr, "Program %s not found\n", commands[i].arguments[1]);
+                exit(1);
+            }
+            printf("%s\n", path);
+            free(path); // free strdup path
         }
-        printf("%s\n", path);
-        free(path); // free strdup path
-    }
-    //exit command
-    else if(strcmp(commands[i].command, "exit") == 0 && commands[i].argc == 1){
-        exit_mysh(line);
-    }
-    //Other commands
-    else {
-        char* path;
-        if (commands[i].command[0] == '.' || commands[i].command[0] == '/'){
-            path = commands[i].command;
+        else if(strcmp(commands[i].command, "exit") == 0 && commands[i].argc == 1){
+            exit_mysh(line);
         }
-        else{
-            path = which(commands[i].command);
-        }
-        pid_t pid = fork();
-        if (pid == -1) {
-            // Handle error
-        } else if (pid > 0) {
-            // This is the parent
-            int status;
-            waitpid(pid, &status, 0);
-        } else {
-            // This is the child
+        else {
+            char* path;
+            if (commands[i].command[0] == '.' || commands[i].command[0] == '/'){
+                path = commands[i].command;
+            }
+            else{
+                path = which(commands[i].command);
+            }
             execv(path, commands[i].arguments);
             perror("Command/Program not found");
-            return 1;
+            exit(1);
         }
     }
     return 0;
 }
+
 
 void handle_error(const char* msg) {
     perror(msg);
