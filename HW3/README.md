@@ -6,10 +6,26 @@ Testing Plan
 
 Testing Strategy:
 
+For testing, there are a few important contents to keep in mind:
 
+1. Built in command should be tested, along with conditionals
+2. Error handling should be tested
+3. Pipin and redirection should be tested
+4. Commands that were not built in (like wc or ls) should be tested as well
+
+All sh files are stored in testcases/(sh file). To test these test cases, batch mode can be used on these sh files. There are two txt files in subdir (one for input and output) which is used to test redirection.
+
+Feel free to create your own input/output files (or have mysh create output files for you)
 
 Test Cases:
 
+thenelse.sh: this test case is used to check if the then else statements are functioning correctly.
+
+piperedirect.sh: this is a compilation of multiple pipe and redirect lines. The test case works if all test cases have a non-error output 
+
+errors.sh: this is used to test if errors are printed correctly. There are multiple lines, and all lines should have some form of error.
+
+These errors are all-around and test the entirety of mysh.
 
 
 Mysh Documentation:
@@ -42,30 +58,3 @@ These structures are fed to process_line, which handles the following:
 2. After then/else is handled, process_line looks at the structs and runs the commands based on the contents of the struct. If the struct has an input or output file specified, process_line will handle that accordingly.
 3. All built-in commands (such as pwd and cd) are checked and handled in process_line as well.
 4. If a pipe is present, process_line will also pipe accordingly.
-
-
-
-
-*TODO:*
-
-Modes:
-- Batch Mode
-- Interactive Mode
-
-Testing / README:
-- Testing Code
-- Test inputs
-- README: testing strategy / cases, consiered scenarios and how those checks were performed. Also general code information.
-
-Specifications:
-- Determine the number of child processes to start & for each:
-
-1. The path to the executable file
-2. List of argument strings
-3. Which file sto use for standard IO
-^Process command line in stages (tokens)
-
-- Wildcard handling
-
-- Redirection: < and >
-- Pipelines
