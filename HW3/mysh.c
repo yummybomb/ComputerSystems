@@ -200,55 +200,100 @@ int process_line(char* line, int lastStatus) {
             return 1;
             }
     }
-
     //LOGIC HERE
     int total_commands = set_commands(tokens, tokc);
-
+    if (total_commands == 0) return 0;
+    int fd[2]; // file descriptors for the pipe
     for (int i = 0; i < total_commands; i++){
-        //DEBUG PRINTS
-        printf("argc: %d\n", commands[i].argc);
-        printf("argv: ");
-        for (int j = 0; j < commands[i].argc+1; j++){
-            printf("%s ", commands[i].arguments[j]);
-        }
-        printf("\n");
+        // //DEBUG PRINTS
+        // printf("argc: %d\n", commands[i].argc);
+        // printf("argv: ");
+        // for (int j = 0; j < commands[i].argc+1; j++){
+        //     printf("%s ", commands[i].arguments[j]);
+        // }
+        // printf("\n");
 
-        //REDIRECTION attempt
-        int temp_in = -1;
-        if (commands[i].inputFile){
-            int in;
-            if ((in = open(commands[i].inputFile, O_RDONLY)) < 0) {  
-                fprintf(stderr, "error opening file\n");
+        // PIPE ATTEMPT 
+        if (i < total_commands - 1) {
+            if (pipe(fd) == -1) {
+                perror("pipe");
+                exit(EXIT_FAILURE);
             }
-            temp_in = dup(STDIN_FILENO); 
-            dup2(in, STDIN_FILENO);
-            close(in);
         }
-        int temp_out = -1;
-        if (commands[i].outputFile){       
-            int out;
-            out = creat(commands[i].outputFile, 0640);
-            temp_out = dup(STDOUT_FILENO); 
-            dup2(out, STDOUT_FILENO);
-            close(out); 
+        // Fork a new process
+        pid_t pid = fork();
+        if (pid == -1) {
+            perror("fork");
+            exit(EXIT_FAILURE);
         }
-        //START OF COMMANDS
+        if (pid == 0) {
+            // Child process
+            int temp_stdin = -1;
+            if (i > 0 && !commands[i].inputFile) {
+                // If not the first command, redirect input from the previous pipe
+                temp_stdin = dup(STDIN_FILENO);
+                dup2(fd[0], STDIN_FILENO);
+                close(fd[0]);
+            }
+            int temp_stdout = -1;
+            if (i < total_commands - 1 && !commands[i].outputFile) {
+                // If not the last command, redirect output to the next pipe
+                temp_stdout = dup(STDOUT_FILENO);
+                dup2(fd[1], STDOUT_FILENO);
+                close(fd[1]);
+            }
+            
+            // REDIRECTION attempt
+            int temp_in = -1;
+            if (commands[i].inputFile){
+                int in;
+                if ((in = open(commands[i].inputFile, O_RDONLY)) < 0) {  
+                    fprintf(stderr, "error opening file\n");
+                }
+                temp_in = dup(STDIN_FILENO); 
+                dup2(in, STDIN_FILENO);
+                close(in);
+            }
+            int temp_out = -1;
+            if (commands[i].outputFile){       
+                int out;
+                out = creat(commands[i].outputFile, 0640);
+                temp_out = dup(STDOUT_FILENO); 
+                dup2(out, STDOUT_FILENO);
+                close(out); 
+            }
 
-        if (run_cmd(line, i) == 1){
-            return 1;
-        };
+            // Execute the command
+            if (run_cmd(line, i) == 1){
+                return 1;
+            };
 
-        // END OF REDIRECTION IF ANY OPERATORS
-        if(temp_in != -1) {
-            dup2(temp_in, STDIN_FILENO);
-            close(temp_in);
+            // END OF REDIRECTION IF ANY OPERATORS
+            if(temp_in != -1) {
+                dup2(temp_in, STDIN_FILENO);
+                close(temp_in);
+            }
+            if(temp_out != -1) {
+                dup2(temp_out, STDOUT_FILENO); 
+                close(temp_out);
+            }
+            if (temp_stdin != -1) {
+                dup2(temp_stdin, STDIN_FILENO);
+                close(temp_stdin);
+            }
+            if (temp_stdout != -1) {
+                dup2(temp_stdout, STDOUT_FILENO);
+                close(temp_stdout);
+            }
+        } else{
+            close(fd[1]);
+            close(fd[0]);
+            return 0;
         }
-        if(temp_out != -1) {
-            dup2(temp_out, STDOUT_FILENO); 
-            close(temp_out);
-        }
-        //TODO: MORE COMMANDS / OPTIONS
-        return 0;
+    }
+    for (int i = 0; i < total_commands; i++) {
+        int status;
+        waitpid(-1, &status, WNOHANG);
     }
     return 0;
 }
