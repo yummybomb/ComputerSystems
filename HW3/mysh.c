@@ -46,7 +46,6 @@ int run_cmd(char* line, int i);
 int cd(const char* path);
 int pwd(void);
 char* which(const char* progName);
-int preprocess_line(char* line);
 void exit_mysh(char* line);
 
 int main(int argc, char* argv[]) {
@@ -93,33 +92,6 @@ void interactive_mode(void) {
     }
     return; 
 }
-
-// Helper Funcs
-int preprocess_line(char* line){
-    //These 3 lines are used to get a string array 'tokens,' which stores all tokens of 'line'
-    int tokc = count_tokens(line);
-    char *tokens[tokc+1];
-    get_tokens(line, tokens, tokc);
-    //ERROR CHECKING
-    if (tokc == 0) return 2;
-
-    int status = then_else_status(tokens, tokc);
-    if(status == 1) return 1;
-
-    if(strcmp(tokens[0], "|") == 0){fprintf(stderr, "Cannot have pipe in the beginning\n"); return 1;}
-    if(strcmp(tokens[tokc-1], "|") == 0){fprintf(stderr, "Cannot have pipe at end\n"); return 1;}
-    if(strcmp(tokens[tokc-1], "<") == 0 || strcmp(tokens[tokc-1], ">") == 0){fprintf(stderr, "cannot have redirect at end\n"); return 1;}
-
-    for(int i = 1; i < tokc; i++){
-        if ((strcmp(tokens[i], tokens[i-1]) == 0) && (strcmp(tokens[i], "<") == 0 || strcmp(tokens[i],">") == 0 || strcmp(tokens[i], "|") == 0)) {
-            fprintf(stderr, "Cannot have a double redirect/pipe");
-            return 1;
-            }
-    }
-    return set_commands(tokens, tokc);
-}
-
-
 
 
 char *read_line(){
@@ -207,7 +179,29 @@ void read_file(FILE* file) {
 
 //0 is successful, 1 is failure, 2 if empty
 int process_line(char* line, int lastStatus) {
-    int total_commands = preprocess_line(line);
+    //These 3 lines are used to get a string array 'tokens,' which stores all tokens of 'line'
+    int tokc = count_tokens(line);
+    char *tokens[tokc+1];
+    get_tokens(line, tokens, tokc);
+    //ERROR CHECKING
+    if (tokc == 0) return 2;
+
+    int status = then_else_status(tokens, tokc);
+    if(status == 1) return 1;
+
+    if(strcmp(tokens[0], "|") == 0){fprintf(stderr, "Cannot have pipe in the beginning\n"); return 1;}
+    if(strcmp(tokens[tokc-1], "|") == 0){fprintf(stderr, "Cannot have pipe at end\n"); return 1;}
+    if(strcmp(tokens[tokc-1], "<") == 0 || strcmp(tokens[tokc-1], ">") == 0){fprintf(stderr, "cannot have redirect at end\n"); return 1;}
+
+    for(int i = 1; i < tokc; i++){
+        if ((strcmp(tokens[i], tokens[i-1]) == 0) && (strcmp(tokens[i], "<") == 0 || strcmp(tokens[i],">") == 0 || strcmp(tokens[i], "|") == 0)) {
+            fprintf(stderr, "Cannot have a double redirect/pipe");
+            return 1;
+            }
+    }
+
+    //logic here
+    int total_commands = set_commands(tokens, tokc);
     if (total_commands == 0) return 0;
     if(strcmp(commands[0].command, "exit") == 0 && commands[0].argc == 1){
         exit_mysh(line);
@@ -217,6 +211,13 @@ int process_line(char* line, int lastStatus) {
     pid_t pids[total_commands]; // array to hold child process IDs
 
     for (int i = 0; i < total_commands; i++){
+        if (strcmp(commands[i].command, "cd") == 0) {
+            if (chdir(commands[i].arguments[1]) != 0) {
+                perror("chdir");
+            }
+            continue; // Skip the rest of the loop for this iteration
+        }
+        
         if (pipe(&fd[2*i]) == -1) {
             perror("pipe");
             exit(EXIT_FAILURE);
@@ -264,7 +265,7 @@ int process_line(char* line, int lastStatus) {
             if (run_cmd(line, i) == 1){
                 return 1;
             };
-
+            
             exit(0);
 
         }
@@ -340,7 +341,7 @@ int run_cmd(char* line, int i){
                 path = which(commands[i].command);
             }
             execv(path, commands[i].arguments);
-            fprintf(stderr, "Command/Program not found");
+            fprintf(stderr, "Command/Program not found\n");
             exit(1);
         }
         exit(0);
