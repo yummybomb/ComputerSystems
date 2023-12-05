@@ -46,6 +46,7 @@ int run_cmd(char* line, int i);
 int cd(const char* path);
 int pwd(void);
 char* which(const char* progName);
+int preprocess_line(char* line);
 void exit_mysh(char* line);
 
 int main(int argc, char* argv[]) {
@@ -94,6 +95,33 @@ void interactive_mode(void) {
 }
 
 // Helper Funcs
+int preprocess_line(char* line){
+    //These 3 lines are used to get a string array 'tokens,' which stores all tokens of 'line'
+    int tokc = count_tokens(line);
+    char *tokens[tokc+1];
+    get_tokens(line, tokens, tokc);
+    //ERROR CHECKING
+    if (tokc == 0) return 2;
+
+    int status = then_else_status(tokens, tokc);
+    if(status == 1) return 1;
+
+    if(strcmp(tokens[0], "|") == 0){fprintf(stderr, "Cannot have pipe in the beginning\n"); return 1;}
+    if(strcmp(tokens[tokc-1], "|") == 0){fprintf(stderr, "Cannot have pipe at end\n"); return 1;}
+    if(strcmp(tokens[tokc-1], "<") == 0 || strcmp(tokens[tokc-1], ">") == 0){fprintf(stderr, "cannot have redirect at end\n"); return 1;}
+
+    for(int i = 1; i < tokc; i++){
+        if ((strcmp(tokens[i], tokens[i-1]) == 0) && (strcmp(tokens[i], "<") == 0 || strcmp(tokens[i],">") == 0 || strcmp(tokens[i], "|") == 0)) {
+            fprintf(stderr, "Cannot have a double redirect/pipe");
+            return 1;
+            }
+    }
+    return set_commands(tokens, tokc);
+}
+
+
+
+
 char *read_line(){
      // Allocate initial buffer
     char* line = malloc(INITIAL_BUFFER_SIZE);
@@ -179,86 +207,55 @@ void read_file(FILE* file) {
 
 //0 is successful, 1 is failure, 2 if empty
 int process_line(char* line, int lastStatus) {
-
-    //These 3 lines are used to get a string array 'tokens,' which stores all tokens of 'line'
-    int tokc = count_tokens(line);
-    char *tokens[tokc+1];
-    get_tokens(line, tokens, tokc);
-    //ERROR CHECKING
-    if (tokc == 0) return 2;
-
-    int status = then_else_status(tokens, tokc);
-    if(status == 1) return 1;
-
-    if(strcmp(tokens[0], "|") == 0){fprintf(stderr, "Cannot have pipe in the beginning\n"); return 1;}
-    if(strcmp(tokens[tokc-1], "|") == 0){fprintf(stderr, "Cannot have pipe at end\n"); return 1;}
-    if(strcmp(tokens[tokc-1], "<") == 0 || strcmp(tokens[tokc-1], ">") == 0){fprintf(stderr, "cannot have redirect at end\n"); return 1;}
-
-    for(int i = 1; i < tokc; i++){
-        if ((strcmp(tokens[i], tokens[i-1]) == 0) && (strcmp(tokens[i], "<") == 0 || strcmp(tokens[i],">") == 0 || strcmp(tokens[i], "|") == 0)) {
-            fprintf(stderr, "Cannot have a double redirect/pipe");
-            return 1;
-            }
-    }
-    //LOGIC HERE
-    int total_commands = set_commands(tokens, tokc);
+    int total_commands = preprocess_line(line);
     if (total_commands == 0) return 0;
-    int fd[2]; // file descriptors for the pipe
-    for (int i = 0; i < total_commands; i++){
-        // //DEBUG PRINTS
-        // printf("argc: %d\n", commands[i].argc);
-        // printf("argv: ");
-        // for (int j = 0; j < commands[i].argc+1; j++){
-        //     printf("%s ", commands[i].arguments[j]);
-        // }
-        // printf("\n");
+    if(strcmp(commands[0].command, "exit") == 0 && commands[0].argc == 1){
+        exit_mysh(line);
+    }
 
-        // PIPE ATTEMPT 
-        if (i < total_commands - 1) {
-            if (pipe(fd) == -1) {
-                perror("pipe");
-                exit(EXIT_FAILURE);
-            }
+    int fd[2 * total_commands]; // file descriptors for the pipes
+    pid_t pids[total_commands]; // array to hold child process IDs
+
+    for (int i = 0; i < total_commands; i++){
+        if (pipe(&fd[2*i]) == -1) {
+            perror("pipe");
+            exit(EXIT_FAILURE);
         }
-        // Fork a new process
-        pid_t pid = fork();
-        if (pid == -1) {
+
+        pids[i] = fork();
+        if (pids[i] == -1) {
             perror("fork");
             exit(EXIT_FAILURE);
         }
-        if (pid == 0) {
+
+        if (pids[i] == 0) {
             // Child process
-            int temp_stdin = -1;
-            if (i > 0 && !commands[i].inputFile) {
-                // If not the first command, redirect input from the previous pipe
-                temp_stdin = dup(STDIN_FILENO);
-                dup2(fd[0], STDIN_FILENO);
-                close(fd[0]);
+            if (i != 0 && !commands[i].inputFile) {
+                // If not the first command and no input redirection, redirect input from the previous pipe
+                dup2(fd[(i-1)*2], STDIN_FILENO);
             }
-            int temp_stdout = -1;
-            if (i < total_commands - 1 && !commands[i].outputFile) {
-                // If not the last command, redirect output to the next pipe
-                temp_stdout = dup(STDOUT_FILENO);
-                dup2(fd[1], STDOUT_FILENO);
-                close(fd[1]);
+            if (i != total_commands - 1 && !commands[i].outputFile) {
+                // If not the last command and no output redirection, redirect output to the next pipe
+                dup2(fd[i*2 + 1], STDOUT_FILENO);
             }
-            
+
+            // Close all pipes in the child to keep the pipe count correct
+            for (int j = 0; j < 2 * total_commands; j++) {
+                close(fd[j]);
+            }
+
             // REDIRECTION attempt
-            int temp_in = -1;
             if (commands[i].inputFile){
                 int in;
                 if ((in = open(commands[i].inputFile, O_RDONLY)) < 0) {  
                     fprintf(stderr, "error opening file\n");
                 }
-                temp_in = dup(STDIN_FILENO); 
                 dup2(in, STDIN_FILENO);
                 close(in);
             }
-            int temp_out = -1;
             if (commands[i].outputFile){       
                 int out;
                 out = creat(commands[i].outputFile, 0640);
-                temp_out = dup(STDOUT_FILENO); 
                 dup2(out, STDOUT_FILENO);
                 close(out); 
             }
@@ -268,35 +265,25 @@ int process_line(char* line, int lastStatus) {
                 return 1;
             };
 
-            // END OF REDIRECTION IF ANY OPERATORS
-            if(temp_in != -1) {
-                dup2(temp_in, STDIN_FILENO);
-                close(temp_in);
-            }
-            if(temp_out != -1) {
-                dup2(temp_out, STDOUT_FILENO); 
-                close(temp_out);
-            }
-            if (temp_stdin != -1) {
-                dup2(temp_stdin, STDIN_FILENO);
-                close(temp_stdin);
-            }
-            if (temp_stdout != -1) {
-                dup2(temp_stdout, STDOUT_FILENO);
-                close(temp_stdout);
-            }
-        } else{
-            close(fd[1]);
-            close(fd[0]);
-            return 0;
+            exit(0);
+
         }
     }
+
+    // Close all pipes in the parent to keep the pipe count correct
+    for (int i = 0; i < 2 * total_commands; i++) {
+        close(fd[i]);
+    }
+
+    // Wait for all child processes to finish
     for (int i = 0; i < total_commands; i++) {
         int status;
-        waitpid(-1, &status, WNOHANG);
+        waitpid(pids[i], &status, 0);
     }
+    memset(commands, 0, sizeof(commands));
     return 0;
 }
+
 
 int run_cmd(char* line, int i){
     pid_t pid = fork();
@@ -306,6 +293,7 @@ int run_cmd(char* line, int i){
         // This is the parent
         int status;
         waitpid(pid, &status, 0);
+        return 0;
     } else {
         // This is the child
         if(strcmp(commands[i].command, "pwd") == 0){
@@ -352,9 +340,11 @@ int run_cmd(char* line, int i){
                 path = which(commands[i].command);
             }
             execv(path, commands[i].arguments);
-            perror("Command/Program not found");
+            fprintf(stderr, "Command/Program not found");
             exit(1);
         }
+        exit(0);
+        return 0;
     }
     return 0;
 }
@@ -528,8 +518,9 @@ char* which(const char *progName) {
 }
 
 void exit_mysh(char* line){
-    printf("mysh: exiting");
+    printf("mysh: exiting\n");
     free(line);
+    kill(1, SIGKILL);
     exit(1);
 }
 
