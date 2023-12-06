@@ -30,6 +30,8 @@ These errors are all-around and test the entirety of mysh.
 
 Mysh Documentation:
 
+There is an additional file called test.c, which is not used at all. This is because it contains code for wildcard handling, which we weren't able to implement into mysh, however, we would like to show our thought process for handling wild cards with the find_matches program.
+
 There are two modes: Batch mode and Interactive mode. Batch runs when an argument is given, interactive when no arguments are given.
 
 the read_line function processes an input line. The read_line function also adds whitespace before special characters < > |, which will be useful later when tokenizing.
