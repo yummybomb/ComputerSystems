@@ -26,6 +26,8 @@ typedef struct Command {
 int lastStatus = 0;
 Command commands[100];
 int comC;
+char* exp_args[4096];
+int exp_args_count = 0;
 
 #define INITIAL_BUFFER_SIZE 256
 // Function prototypes
@@ -35,7 +37,7 @@ void interactive_mode(void);
 void read_file(FILE* file);
 char *read_line(void);
 bool is_empty_or_whitespace(const char* str);
-int process_line(char* line, int lastStatus);
+int process_line(char* line);
 int then_else_status(char** tokens, int tokc);
 void get_tokens(char* line , char** tokens, int tokc);
 int count_tokens(char* line);
@@ -86,8 +88,7 @@ void interactive_mode(void) {
     while(1 == 1){
         printf("mysh> ");
         line = read_line();
-        int status = process_line(line, lastStatus);
-        if(status != 2) lastStatus = status;
+        process_line(line);
         free(line);
     }
     return; 
@@ -162,7 +163,9 @@ void read_file(FILE* file) {
         // EOL - process and reset buffer
         if (c == '\n') {
             line[contentSize] = '\0';
-            process_line(line, lastStatus);
+            if (!is_empty_or_whitespace(line)) {
+                process_line(line);
+            }
             contentSize = 0;
         }
     }
@@ -170,15 +173,18 @@ void read_file(FILE* file) {
     // Process leftover content in a line
     if (contentSize > 0) {
         line[contentSize] = '\0';
-        process_line(line, lastStatus);
+        if (!is_empty_or_whitespace(line)) {
+            process_line(line);
+        }
     }
 
     // Clean up
     free(line);
 }
 
+
 //0 is successful, 1 is failure, 2 if empty
-int process_line(char* line, int lastStatus) {
+int process_line(char* line) {
     //These 3 lines are used to get a string array 'tokens,' which stores all tokens of 'line'
     int tokc = count_tokens(line);
     char *tokens[tokc+1];
@@ -228,7 +234,6 @@ int process_line(char* line, int lastStatus) {
             perror("fork");
             exit(EXIT_FAILURE);
         }
-
         if (pids[i] == 0) {
             // Child process
             if (i != 0 && !commands[i].inputFile) {
@@ -262,12 +267,13 @@ int process_line(char* line, int lastStatus) {
             }
 
             // Execute the command
-            if (run_cmd(line, i) == 1){
-                return 1;
-            };
-            
-            exit(0);
-
+            int failure = 0;
+            failure = run_cmd(line,i);
+            if (failure == 1){
+                exit(1);
+            }else {
+                exit(0);
+            }       
         }
     }
 
@@ -275,11 +281,14 @@ int process_line(char* line, int lastStatus) {
     for (int i = 0; i < 2 * total_commands; i++) {
         close(fd[i]);
     }
-
+    lastStatus = 0;
     // Wait for all child processes to finish
     for (int i = 0; i < total_commands; i++) {
         int status;
         waitpid(pids[i], &status, 0);
+        if (WIFEXITED(status) && WEXITSTATUS(status) != 0) {
+            lastStatus = 1;
+        }
     }
     memset(commands, 0, sizeof(commands));
     return 0;
@@ -289,49 +298,54 @@ int process_line(char* line, int lastStatus) {
 int run_cmd(char* line, int i){
     pid_t pid = fork();
     if (pid == -1) {
-        // Handle error
+        exit(1);
     } else if (pid > 0) {
         // This is the parent
         int status;
         waitpid(pid, &status, 0);
-        return 0;
+        lastStatus = 0;
+        if (status){
+            lastStatus = 1;
+            exit(1);
+        }
+        exit(0);
     } else {
         // This is the child
-        if(strcmp(commands[i].command, "pwd") == 0){
+        if(strcmp(commands[i].command, "exit") == 0 && commands[i].argc == 1){
+            exit_mysh(line);
+        }
+        else if(strcmp(commands[i].command, "pwd") == 0){
             if(commands[i].argc != 1){
                 fprintf(stderr, "Error: pwd should be the only argument\n");
-                exit(1);
+                return 1;
             }
             pwd();
         }
         else if(strcmp(commands[i].command, "cd") == 0){
             if(commands[i].argc != 2){
                 fprintf(stderr, "Error: cd incorrect number of arguments\n");
-                exit(1);
+                return 1;
             }
             cd(commands[i].arguments[1]);
         }
         else if(strcmp(commands[i].command, "which") == 0){
             if(commands[i].argc == 1) {
                 fprintf(stderr, "Error: which requires a program name \n"); 
-                exit(1);
+                return 1;
             }
             if(commands[i].argc > 2) {
                 fprintf(stderr, "Error: which incorrect number of arguments\n"); 
-                exit(1);
+                return 1;
             }
             char *path = which(commands[i].arguments[1]);
 
             if (path == NULL) {
                 fprintf(stderr, "Program %s not found\n", commands[i].arguments[1]);
-                exit(1);
+                return 1;
             }
             printf("%s\n", path);
             free(path); // free strdup path
-        }
-        else if(strcmp(commands[i].command, "exit") == 0 && commands[i].argc == 1){
-            exit_mysh(line);
-        }
+        } 
         else {
             char* path;
             if (commands[i].command[0] == '.' || commands[i].command[0] == '/'){
@@ -342,12 +356,11 @@ int run_cmd(char* line, int i){
             }
             execv(path, commands[i].arguments);
             fprintf(stderr, "Command/Program not found\n");
-            exit(1);
+            return 1;
         }
-        exit(0);
         return 0;
     }
-    return 0;
+    exit(0);
 }
 
 
@@ -404,7 +417,7 @@ int set_commands(char** tokens, int tokc){
             continue;
         }
         
-        if(strcmp(tokens[i], "|") == 0 || strcmp(tokens[i], "\n") == 0) {
+        if(strcmp(tokens[i], "|") == 0) {
             commands[comIndex].arguments[currArgs] = NULL;
             comIndex++;
             currArgs = 0;
@@ -479,9 +492,13 @@ int cd(const char* path){
     int status = chdir(path);
     if(status != 0){
         perror("could not change directory to specified path");
+        lastStatus = 1;
         return 1;
     }
-    else return 0;
+    else {
+        lastStatus = 0;
+        return 0;
+    }
 }
 //Prints the current working directory to StdOut
 //Returns 0 success, 1 on failure
@@ -493,10 +510,11 @@ int pwd(){
     }
     else{
         perror("Could not get current working directory");
+        lastStatus = 1;
         return 1;
     }
+    lastStatus = 0;
     return 0;
-
 }
 
 //Takes signle argument: name of a program
